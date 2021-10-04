@@ -4,9 +4,9 @@ This collection of playbooks installs a Quobyte cluster from scratch.
 It uses no external resources like installer scripts and thus should be easy to read, understand and use for someone who is familiar with Ansible. 
 
 
-# Installing Qoubyte
+## Installing Qoubyte
 
-# Step one: make a plan
+### Step one: make a plan
 
 You can use ``` inventory.yaml ``` as an example and adjust it to your needs. Within this file you will 
 line out how your Quobyte cluster will look like.
@@ -17,7 +17,7 @@ you and so on.
 With only these two files in place you can start to execute your plan.
 
 
-## Execute the installation 
+### Execute the installation 
 
 All your playbooks can be executed using the following command:
 
@@ -61,7 +61,7 @@ $ ansible-playbook -i inventory.yaml 04_add_dataservices.yaml
 
 All empty devices are then also part of the cluster.
 
-#### Uninstall
+### Uninstall
 
 There is one playbook you can use to get rid of a Quobyte installation:
 
