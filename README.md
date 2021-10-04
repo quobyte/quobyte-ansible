@@ -15,7 +15,7 @@ you and so on.
 With only these two files in place you can start to execute your plan.
 
 
-### Install the Storage Cluster
+### Step two: Install the Storage Cluster
 
 All your playbooks can be executed using the following command:
 
