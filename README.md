@@ -2,7 +2,7 @@
 
 This collection of playbooks installs a Quobyte cluster from scratch. 
 
-## Installing Qoubyte
+## Installing Quobyte
 
 ### Step one: Adjust Inventory and Variables 
 
