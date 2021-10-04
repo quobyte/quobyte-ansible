@@ -1,8 +1,6 @@
 # Ansible based Quobyte installer 
 
 This collection of playbooks installs a Quobyte cluster from scratch. 
-It uses no external resources like installer scripts and thus should be easy to read, understand and use for someone who is familiar with Ansible. 
-
 
 ## Installing Qoubyte
 
