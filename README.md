@@ -4,7 +4,7 @@ This collection of playbooks installs a Quobyte cluster from scratch.
 
 ## Installing Qoubyte
 
-### Step one: make a plan
+### Step one: Adjust Inventory and Variables 
 
 You can use ``` inventory.yaml ``` as an example and adjust it to your needs. Within this file you will 
 line out how your Quobyte cluster will look like.
@@ -15,7 +15,7 @@ you and so on.
 With only these two files in place you can start to execute your plan.
 
 
-### Execute the installation 
+### Install the Storage Cluster
 
 All your playbooks can be executed using the following command:
 
@@ -37,7 +37,7 @@ The same way you can for example add a license, create volumes etc.
 
 All playbooks are designed to be idempotent. You can run them more than once and can expect the same results.
 
-### Adding dataservices
+### Adding Dataservices
 
 Should your installation require more dataservices you can use the following procedure:
 
@@ -50,7 +50,7 @@ $ ansible-playbook -i inventory.yaml 00_install_quobyte_server.yaml 04_add_datas
 
 This will only result in changes on the newly added dataservices, they will be part of the cluster afterwards with all empty devices added as datadevices.
 
-### Adding more disks
+### Adding more Storage Devices
 
 If more disks are inserted into a server (either virtual or physical) you can re-run also the "add_dataservices" playbook:
 ```
