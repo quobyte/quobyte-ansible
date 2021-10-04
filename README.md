@@ -1,36 +1,76 @@
 # Ansible based Quobyte installer 
 
-This playbook installs a Quobyte cluster from scratch. It uses no external resources like installer scripts and thus should be easy to read and understand for someone who is familiar with Ansible. 
+This collection of playbooks installs a Quobyte cluster from scratch. 
+It uses no external resources like installer scripts and thus should be easy to read understand and use for someone who is familiar with Ansible. 
 
-To get started you need to configure an inventory (inventory.yaml is an example you can re-use). 
-Also you need to adopt vars/ansible-vars to your needs.
 
-After that you can use the numbered playbooks to install and configure a Quoybte cluster.
+# Installing Qoubyte
 
-## Core installation
+# Step one: make a plan
 
-00_install_quobyte-server.yaml: Adds Quobyte package repositories, installs Quobyte server packages.
+You can use inventory.yaml as an example and adjust it to your needs. Within this file you will 
+line out how your Quobyte cluster will look like.
+You can decide which nodes will run data services, metadata services and so on.
+The second part to consider is the variables file (vars/ansible-vars). 
+You can decide here which devices will hold your metadata, the credentials for a Quobyte superuser account
+you and so on.
+With only these two files in place you can start to execute your plan.
 
-01_setup-coreservices.yaml: Sets up registry, api and webconsole services. After this step you are able to login to your cluster with default credentials.
 
-02_create_superuser.yaml: Sets up a Super User for your cluster. It uses username and password stored in vars/ansible-vars. From this point on no unauthenticated access to your cluster is possible.
+## Execute the installation 
 
-03_add_metadataservices.yaml: Installs and starts Quobyte Metadata Service. Formats and labels the metadata device that you defined as a variable in vars/ansible-vars.
+All your playbooks can be executed using the following command:
 
-04_add_dataservices.yaml: Installs and start Quobyte Data Service. Formats and uses all devices within a machine that are not already formatted. After this step you get a fully functional Quobyte cluster.
+3yy```
+$ ansible-playbook -i inventory.yaml <playbookName>
+```
 
-## Optional install steps
+You can choose to install these playbooks step by step or all at once. For example 
 
-05_optional_tune-cluster.yaml: Sets "sysctl" parameters with  the help of a Qoubyte profile for the "tuned" daemon. You can use it as a conveniency if you do not want to tune your system by yourself.
+```
+$ ansible-playbook -i inventory.yaml 00_install_quobyte-server.yaml 01_setup-coreservices.yaml 02_create_superuser.yaml 03_add_metadataservices.yaml 04_add_dataservices.yaml 05_optional_tune-cluster.yaml
+```
 
-06_optional_install_defaultclient.yaml: Installs the native Quobyte client on all machines in the "clients" section of your inventory file. It will not only install the binary to execute single mount commands but also the systemd unit file that sets up the client to automatically mount any Quobyte volume on the local machine below a given mount point. You can determine the mount by setting the variable in vars/ansible-vars.  
+would result in a Quobyte setup that is ready to use and has already ensured some system tuning parameters.
 
-07_optional_license_cluster.yaml: This adds a given license to the cluster. It needs a file path to the license file set as a variable. The license file is a plain text file containing your license code obtained from the Quoybte support portal ("https://support.quobyte.com").
+The same way you can for example add a license, create volumes etc.
 
-08_optional_add_s3services.yaml: Activates Quoybte S3-Proxy on all nodes listed in the s3-services section of your inventory. You need a working DNS solution with wildcard entries resolving your configured "s3_endpoint" variable to at least one of your nodes where this proxy is runninng. For development/ evaluation purposes you can use the Quobyte Name Service (see 10_optional_use_qns.yaml)  
+## Lifecycle management
 
-09_optional_add_device_tags.yaml: This is an example of how to set device tags. 
+All playbooks are designed to be idempotent. You can run them more than once and can expect the same results.
 
-10_optional_use_qns.yaml: This example shows you how to consume the Quobyte Name Service (qns). Can be useful to instantly use the Quoybte S3 object storage.
+### Adding dataservices
+
+Should your installation require more dataservices you can use the following procedure:
+
+1) Add nodes to the inventory
+2) Run two playbooks:
+
+```
+$ ansible-playbook -i inventory.yaml 00_install_quobyte-server.yaml 04_add_dataservices.yaml  
+```
+
+This will only result in changes on the newly added dataservices, they will be part of the cluster afterwards with all empty devices added as datadevices.
+
+### Adding more disks
+
+If more disks are inserted into a server (either virtual or physical) you can re-run also the "add_dataservices" playbook:
+```
+$ ansible-playbook -i inventory.yaml 04_add_dataservices.yaml  
+```
+
+All empty devices are then also part of the cluster.
+
+#### Uninstall
+
+There is one playbook you can use to get rid of a Quobyte installation:
+
+```
+$ ansible-playbook -i inventory.yaml helper/0x_wipe_cluster.yaml  
+```
+
+This playbook erases all data on all Quobyte devices, stops services and removes binaries.
+You can use it for example if you want to start from scratch with a new installation.
+
 
 
