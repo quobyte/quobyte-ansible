@@ -12,7 +12,7 @@ You can decide which nodes will run data services, metadata services and so on.
 The second part to consider is the variables file ``` vars/ansible-vars ```. 
 You can decide here which devices will hold your metadata, the credentials for a Quobyte superuser account
 you and so on.
-With only these two files in place you can start to execute your plan.
+With only these two files in place you can start the installation.
 
 
 ### Step two: Install the Storage Cluster
