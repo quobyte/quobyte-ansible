@@ -1,0 +1,28 @@
+- hosts: registryservices[0] 
+  vars_files:
+    - vars/ansible-vars
+  vars: 
+    - my_policy: "templates/policy-ssdOnly.tpl"
+    - my_policy_name: "ssd"
+  become: yes
+  tasks:
+    - name: get Quobyte session 
+      shell:
+        cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
+
+    - name: Test if policy {{ my_policy }} exists 
+      shell:
+        cmd: qmgmt -u {{ api_service }} policy-rule list | grep "{{ my_policy_name }} " | awk '{print $2}'
+      register: my_policy_test
+
+    - name: Write policy template 
+      template:
+        src: templates/policy-ssdOnly.tpl
+        dest: "/tmp/policy_template.tpl"
+
+    - name: Create policy 
+      shell:
+        cmd: qmgmt -u {{ api_service }} policy-rule import /tmp/policy_template.tpl 
+      when: my_policy_name not in my_policy_test.stdout
+
+

@@ -1,0 +1,22 @@
+- hosts: registryservices[0] 
+  vars_files:
+    - vars/ansible-vars
+  become: yes
+  tasks:
+
+    - name: Get Quobyte session 
+      shell:
+        cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
+    - name: Test if Quobyte Super User exists
+      shell:
+        cmd: qmgmt -u {{ api_service }} user config list | grep "^{{ admin_user }} " | awk '{print $1}'
+      register: admin_user_test
+
+    - debug: 
+        var: admin_user_test
+
+    - name: Create Quobyte Super User
+      shell:
+        cmd: qmgmt -u {{ api_service }} user config add {{ admin_user }} {{ admin_email | default('changeme@myorga.org') }} SUPER_USER password {{ admin_password }}
+      when: admin_user not in admin_user_test.stdout
+ 

@@ -1,0 +1,69 @@
+- hosts: quobyteservers
+  become: yes
+  tasks:
+    - name: stop Quobyte data consuming services  
+      ignore_errors: yes
+      service:
+        state: stopped
+        enabled: false 
+        name: "{{ item }}"
+      with_items:
+        - quobyte-nfs
+        - quobyte-s3
+        - quobyte-metadata
+        - quobyte-data
+        - quobyte-api
+        - quobyte-registry
+        - quobyte-data
+        - quobyte-webconsole
+
+    - name: build device list
+      shell:
+        cmd: mount | grep /var/lib/quobyte | awk '{print $1}'
+      register: quobyte_devices 
+
+    - set_fact: 
+       devices_to_wipe: "{{ quobyte_devices.stdout_lines }}"
+
+    - name: umount devices
+      command: 
+        cmd: umount {{ item }}
+      with_items:
+        - "{{ devices_to_wipe }}"
+
+    - name: wipe devices
+      command: 
+        cmd: wipefs -a {{ item }}
+      with_items:
+        - "{{ devices_to_wipe }}"
+
+    - name: remove RPM packages
+      yum: 
+        update_cache: no 
+        state: absent
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - quobyte-server
+        - quobyte-client 
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: remove Debian packages
+      apt:
+        name: "{{ packages }}"
+        state: absent 
+        purge: yes
+      vars:
+        packages:
+        - quobyte-thirdparty-libraries
+        - quobyte-server
+        - quobyte-client
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: remove Quobyte directories
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /var/lib/quobyte
+        - /etc/quobyte 

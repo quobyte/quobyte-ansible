@@ -1,0 +1,47 @@
+- hosts: quobyteservers 
+  serial: 1
+  vars_files:
+    - ../vars/ansible-vars
+  become: yes
+  tasks:
+    - name: get Quobyte session 
+      shell:
+        cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
+
+    - name: wait for healthmanager to react
+      pause: 
+        seconds: 30
+
+    - name: Test if cluster is HEALTHY 
+      shell:
+        cmd: qmgmt -u {{ api_service }} healthmanager status | grep system_health | awk '{print $2}'
+      register: systemhealth_test
+      retries: 50
+      delay: 5
+      until: "'HEALTHY' in systemhealth_test.stdout"
+
+    - debug:
+        var: systemhealth_test
+
+    - name: Install Debian packages
+      apt:
+        name: "{{ packages }}"
+        state: latest 
+        update_cache: yes
+      vars:
+        packages:
+        - quobyte-server
+      when: ansible_facts['os_family'] == "Debian" and "'HEALTHY' in systemhealth_test.stdout" 
+
+    - name: Install RPM packages
+      yum: 
+        update_cache: yes
+        allow_downgrade: yes
+        state: latest 
+        name: "{{ packages }}"
+      vars:
+        packages:
+        ## - quobyte-server
+        - quobyte-server-3.0~pre9.2-1.1 
+      when: ansible_facts['os_family'] == "RedHat" and "'HEALTHY' in systemhealth_test.stdout"
+

@@ -1,0 +1,79 @@
+- hosts: quobyteservers
+  any_errors_fatal: false
+  vars_files:
+    - vars/ansible-vars
+  become: yes
+  vars: 
+    #quobyte_version: =2:3.0~pre8.1
+    #quobyte_version: =2:3.0~pre9-1
+    #quobyte_version: =2:3.0~pre9.1-1
+    quobyte_version: "" 
+
+  tasks:
+    
+    - set_fact: 
+        package_url: https://packages.quobyte.com/repo/3/{{ repo_id }}
+      when: repo_id is defined 
+
+    - set_fact: 
+        package_url: https://packages.quobyte.com/repo/v3 
+      when: repo_id is not defined 
+
+    - set_fact: 
+        rpm_distribution_string: RHEL 
+      when: ansible_distribution is regex('^RedHat*') 
+
+    - set_fact: 
+        rpm_distribution_string: "{{ ansible_distribution }}"
+      when: ansible_distribution is regex('^CentOS*') 
+
+    - name: Add Quobyte repository signing key
+      apt_key:
+        url: https://packages.quobyte.com/repo/v3/apt/pubkey.gpg 
+        state: present
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+    - name: Add Quobyte apt repository to sources list
+      apt_repository:
+        repo: "deb {{ package_url }}/apt {{ ansible_distribution_release }} main"
+        state: present
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Add Quobyte rpm repository to sources list
+      yum_repository:
+        name: quobyte
+        description: Quobyte rpm repo
+        baseurl: "{{ package_url }}/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}"
+        gpgkey: https://packages.quobyte.com/repo/v3/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}/repodata/repomd.xml.key
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Install Debian packages
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+        - default-jre-headless
+        - quobyte-server{{ quobyte_version }}
+        - xfsprogs
+      when: ansible_facts['os_family'] == "Debian"
+ 
+    - name: Install RPM packages
+      yum: 
+        update_cache: yes
+        allow_downgrade: yes
+        state: present
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - java-11-openjdk 
+        - quobyte-server
+        - xfsprogs
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Write /etc/quobyte/host.cfg
+      template:
+        src: templates/host.cfg.jinja2
+        dest: "/etc/quobyte/host.cfg"
+
+

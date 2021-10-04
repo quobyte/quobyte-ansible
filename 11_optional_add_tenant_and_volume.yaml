@@ -1,0 +1,31 @@
+- hosts: registryservices[0] 
+  vars_files:
+    - vars/ansible-vars
+  vars: 
+    - my_tenant: "myorga-2.org"
+    - my_volume: "myvolume-2"
+  become: yes
+  tasks:
+    - name: get Quobyte session 
+      shell:
+        cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
+
+    - name: Test if tenant {{ my_tenant }} exists 
+      shell:
+        cmd: qmgmt -u {{ api_service }} tenant list | grep "^{{ my_tenant }} " | awk '{print $1}'
+      register: my_tenant_test
+
+    - name: create tenant 
+      shell:
+        cmd: qmgmt -u {{ api_service }} tenant create {{ my_tenant }} 
+      when: my_tenant not in my_tenant_test.stdout
+
+    - name: Test if volume {{ my_volume }} exists 
+      shell:
+        cmd: qmgmt -u {{ api_service }} volume list | grep "^{{ my_volume }} " | awk '{print $1}'
+      register: my_volume_test
+
+    - name: create volume
+      shell:
+        cmd: qmgmt -u {{ api_service }} volume create {{ my_tenant }}/{{ my_volume }} user=root group=root configuration_name=noVolumeConfig
+      when: my_volume not in my_volume_test.stdout

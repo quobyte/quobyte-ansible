@@ -1,0 +1,68 @@
+- hosts: metadataservices 
+  become: yes
+  tasks:
+    - name: Enable Quobyte metadata service
+      service:
+        enabled: yes
+        state: started
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-metadata
+
+- hosts: metadataservices
+  vars_files:
+    - vars/ansible-vars
+  vars:
+    metadata_host_count: "{{ groups['metadataservices'] | length }}"
+  become: yes
+  tasks:
+    - name: Create a xfs filesystem on {{ metadatadevices }}
+      filesystem:
+        fstype: xfs 
+        dev: "/dev/{{ item }}"
+      with_items: "{{ metadatadevices }}"
+    - name: Label metadata device with "quobyte-dev" 
+      command:
+        cmd: xfs_admin -L quobyte-dev /dev/{{ item }} 
+        creates: /var/lib/quobyte/devices/metadata/QUOBYTE_DEV_SETUP
+      with_items: "{{ metadatadevices }}"
+    - name: Create metadata mount path
+      file:
+        path: /var/lib/quobyte/devices/metadata-{{ item }}
+        state: directory
+        owner: quobyte
+        mode: '0755'
+      with_items: "{{ metadatadevices }}"
+    - name: Mount metadata device
+      mount:
+        path: /var/lib/quobyte/devices/metadata-{{ item }}
+        src: "/dev/{{ item }}"
+        fstype: xfs 
+        state: mounted
+      with_items: "{{ metadatadevices }}"
+    - name: Run qmkdev to create metadata device 
+      command:
+        cmd: /usr/bin/qmkdev -t METADATA /var/lib/quobyte/devices/metadata-{{ item }}
+        creates: /var/lib/quobyte/devices/metadata-{{ item }}/QUOBYTE_DEV_SETUP
+      with_items: "{{ metadatadevices }}"
+
+- hosts: registryservices[0]
+  vars_files:
+    - vars/ansible-vars
+  vars:
+    metadata_host_count: "{{ groups['metadataservices'] | length }}"
+  become: yes
+  tasks:
+
+    - name: get Quobyte session 
+      shell:
+        cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
+
+    - name: Wait for all {{ metadata_host_count }} metadata devices to become available
+      shell: 
+        cmd: qmgmt -u {{ api_service }} device list METADATA | grep ONLINE | wc -l
+      register: metadata_device_state
+      retries: 12
+      delay: 10
+      until: metadata_device_state.stdout == metadata_host_count 
+

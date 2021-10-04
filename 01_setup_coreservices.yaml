@@ -1,0 +1,157 @@
+# first node will be bootstrap node
+- hosts: registryservices[0]
+  vars_files:
+    - vars/ansible-vars
+  become: yes
+  tasks:
+
+    - name: Create registry data directory
+      file:
+        path: /var/lib/quobyte/devices/registry-data
+        state: directory
+        mode: '0755'
+    - name: Register pseudo device to hold registry data
+      command:
+        cmd: /usr/bin/qbootstrap -y -d /var/lib/quobyte/devices/registry-data 
+        creates: /var/lib/quobyte/devices/registry-data/QUOBYTE_DEV_SETUP
+
+    - name: Enable Quobyte core services 
+      service:
+        enabled: yes
+        state: started
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-registry
+         - quobyte-api
+
+    - name: Wait for API RPC port to become available 
+      wait_for:
+        port: 7865 
+        delay: 2
+
+    - name: Wait for API metrics port to become available 
+      wait_for:
+        port: 7875 
+        delay: 2
+
+    - name: Get Quobyte session 
+      shell:
+        cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
+
+    - name: export systemconfig 
+      shell:
+        cmd: qmgmt -u {{ api_service }} systemconfig export /tmp/systemconfig
+
+    - name: Register systemconfig
+      shell: 
+        cmd: cat /tmp/systemconfig
+      register: systemconfig
+
+    - name: Add cluster_configuraton block to systemconfig
+      blockinfile:
+        path: /tmp/systemconfig
+        marker: "# cluster config section"
+        block: |
+          cluster_configuration {
+            cluster_name: "{{ clustername }}"
+          }
+      when: 'repo_id is not defined and "cluster_configuration {" not in systemconfig.stdout'
+
+    - name: Set cluster name 
+      lineinfile:
+        path: /tmp/systemconfig
+        regexp: '^  cluster_name:.*'
+        line: '  cluster_name: "{{ clustername }}"'
+        insertafter: 'cluster_configuration {'
+      when: '"cluster_configuration {" in systemconfig.stdout'
+
+    - name: Add service network block to systemconfig
+      blockinfile:
+        path: /tmp/systemconfig
+        marker: "# network section"
+        block: |
+          network {
+            enabled_service_networks: "{{ network }}"
+            enabled_client_networks: "{{ network }}"
+          }
+      when: '"network {" not in systemconfig.stdout' 
+
+    - name: Set service network 
+      lineinfile:
+        path: /tmp/systemconfig
+        regexp: '^  enabled_service_networks:.*'
+        line: '  enabled_service_networks: "{{ network }}"'
+        insertafter: 'network {'
+      when: '"network {" in systemconfig.stdout'
+
+    - name: Set client network 
+      lineinfile:
+        path: /tmp/systemconfig
+        regexp: '^  enabled_client_networks:.*'
+        line: '  enabled_client_networks: "{{ network }}"'
+        insertafter: 'network {'
+      when: '"network {" in systemconfig.stdout'
+
+    - name: Import system configuration
+      shell:
+        cmd: /usr/bin/qmgmt -u {{ api_service }} systemconfig import /tmp/systemconfig
+      tags: system
+
+    - name: Restart Quobyte registry services 
+      service:
+        state: restarted
+        name: quobyte-registry 
+
+- hosts: registryservices[1:]
+  become: yes
+  tasks:
+    - name: Create quobyte device directory
+      file:
+        path: /var/lib/quobyte/devices
+        state: directory
+        owner: quobyte
+        mode: '0755'
+    - name: Create registry data directory
+      file:
+        path: /var/lib/quobyte/devices/registry-data
+        state: directory
+        owner: quobyte
+        mode: '0755'
+    - name: Register pseudo device to hold registry data
+      command:
+        cmd: qmkdev -t REGISTRY -d /var/lib/quobyte/devices/registry-data 
+        creates: /var/lib/quobyte/devices/registry-data/QUOBYTE_DEV_SETUP
+
+- hosts: registryservices
+  become: yes
+  tasks:
+    - name: Enable Quobyte core services 
+      service:
+        enabled: yes
+        state: started
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-registry
+
+- hosts: apiservices
+  become: yes
+  tasks:
+    - name: Enable Quobyte core services 
+      service:
+        enabled: yes
+        state: started
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-api
+
+- hosts: webconsoleservices
+  become: yes
+  tasks:
+    - name: Enable Quobyte core services 
+      service:
+        enabled: yes
+        state: started
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-webconsole
+

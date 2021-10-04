@@ -1,0 +1,41 @@
+- hosts: registryservices[0] 
+  vars_files:
+    - vars/ansible-vars
+  become: yes
+  tasks:
+
+    - name: get Quobyte session 
+      shell:
+        cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{admin_password }} 
+
+    - name: Import Quobyte license from file
+      shell:
+        cmd: qmgmt -u {{ api_service }} license import {{ license_file }} 
+
+- hosts: registryservices 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte registry services 
+      service:
+        state: restarted
+        name: quobyte-registry 
+
+- hosts: apiservices 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte api services 
+      service:
+        state: restarted
+        name: quobyte-api 
+
+- hosts: webconsoleservices 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte webconsole services 
+      service:
+        state: restarted
+        name: quobyte-webconsole 
+

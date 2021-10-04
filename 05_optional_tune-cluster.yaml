@@ -1,0 +1,83 @@
+- hosts: quobyteservers
+  vars_files:
+    - vars/ansible-vars
+  become: yes
+  tasks:
+    - name: Install tuned Debian package 
+      apt: 
+        name: tuned
+        state: present
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Install tuned RPM package 
+      yum: 
+        name: tuned
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Set Quobyte tuned server profile
+      command: tuned-adm profile quobyte-server-performance
+
+    - name: Restart tuned
+      service:
+        name: tuned
+        state: restarted
+        enabled: yes
+
+- hosts: registryservices 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte registry services 
+      service:
+        state: restarted
+        name: quobyte-registry 
+- hosts: apiservices 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte api services 
+      service:
+        state: restarted
+        name: quobyte-api 
+- hosts: webconsoleservices 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte webconsole services 
+      service:
+        state: restarted
+        name: quobyte-webconsole 
+- hosts: metadataservices 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte metadata services 
+      service:
+        state: restarted
+        name: quobyte-metadata 
+- hosts: dataservices 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte data services 
+      service:
+        state: restarted
+        name: quobyte-data 
+- hosts: s3services 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte s3 services 
+      service:
+        state: restarted
+        name: quobyte-s3 
+## NFS currently not part on ansible playbooks
+#- hosts: nfsservices 
+#  become: yes
+#  serial: 1
+#  tasks:
+#    - name: Restart Quobyte nfs services 
+#      service:
+#        state: restarted
+#        name: quobyte-nfs 

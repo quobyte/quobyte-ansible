@@ -1,0 +1,53 @@
+- hosts: s3services 
+  vars_files:
+    - vars/ansible-vars
+  become: yes
+  tasks:
+
+    - name: Create object storage working directory
+      file:
+        path: /var/lib/quobyte/.quobyte
+        state: directory
+        owner: quobyte
+
+    - name: Enable Quobyte S3 proxy
+      service:
+        enabled: yes
+        state: started
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-s3
+
+    - name: Get Quobyte session 
+      shell:
+        cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
+
+    - name: Export systemconfig 
+      shell:
+        cmd: qmgmt -u {{ api_service }} systemconfig export /tmp/systemconfig
+
+    - name: Register systemconfig
+      shell: 
+        cmd: cat /tmp/systemconfig
+      register: systemconfig
+
+    - name: Add s3 config to systemconfig
+      lineinfile:
+        path: /tmp/systemconfig
+        regexp: '^  hostname:.*'
+        line: '  hostname: "{{ s3_endpoint }}"'
+        insertafter: 's3_proxy {'
+
+    - name: Add s3 browser bucket name to systemconfig
+      lineinfile:
+        path: /tmp/systemconfig
+        line: '  browser_bucket_name: "browser.{{ s3_endpoint }}"'
+        regexp: '^  browser_bucket_name:.*'
+        insertafter: 's3_proxy {'
+
+    - name: Import system configuration
+      shell:
+        cmd: /usr/bin/qmgmt -u {{ api_service }} systemconfig import /tmp/systemconfig
+      tags: system
+
+
