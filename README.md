@@ -1,14 +1,14 @@
 # Ansible based Quobyte installer 
 
 This collection of playbooks installs a Quobyte cluster from scratch. 
-It uses no external resources like installer scripts and thus should be easy to read understand and use for someone who is familiar with Ansible. 
+It uses no external resources like installer scripts and thus should be easy to read, understand and use for someone who is familiar with Ansible. 
 
 
 # Installing Qoubyte
 
 # Step one: make a plan
 
-You can use inventory.yaml as an example and adjust it to your needs. Within this file you will 
+You can use ``` inventory.yaml ``` as an example and adjust it to your needs. Within this file you will 
 line out how your Quobyte cluster will look like.
 You can decide which nodes will run data services, metadata services and so on.
 The second part to consider is the variables file (vars/ansible-vars). 
@@ -21,14 +21,14 @@ With only these two files in place you can start to execute your plan.
 
 All your playbooks can be executed using the following command:
 
-3yy```
+```
 $ ansible-playbook -i inventory.yaml <playbookName>
 ```
 
 You can choose to install these playbooks step by step or all at once. For example 
 
 ```
-$ ansible-playbook -i inventory.yaml 00_install_quobyte-server.yaml 01_setup-coreservices.yaml 02_create_superuser.yaml 03_add_metadataservices.yaml 04_add_dataservices.yaml 05_optional_tune-cluster.yaml
+$ ansible-playbook -i inventory.yaml 00_install_quobyte_server.yaml 01_setup_coreservices.yaml 02_create_superuser.yaml 03_add_metadataservices.yaml 04_add_dataservices.yaml 05_optional_tune-cluster.yaml
 ```
 
 would result in a Quobyte setup that is ready to use and has already ensured some system tuning parameters.
@@ -47,7 +47,7 @@ Should your installation require more dataservices you can use the following pro
 2) Run two playbooks:
 
 ```
-$ ansible-playbook -i inventory.yaml 00_install_quobyte-server.yaml 04_add_dataservices.yaml  
+$ ansible-playbook -i inventory.yaml 00_install_quobyte_server.yaml 04_add_dataservices.yaml  
 ```
 
 This will only result in changes on the newly added dataservices, they will be part of the cluster afterwards with all empty devices added as datadevices.
