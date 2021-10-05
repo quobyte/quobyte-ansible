@@ -38,7 +38,7 @@
       shell:
         cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
 
-    - name: export systemconfig 
+    - name: Export systemconfig 
       shell:
         cmd: qmgmt -u {{ api_service }} systemconfig export /tmp/systemconfig
 

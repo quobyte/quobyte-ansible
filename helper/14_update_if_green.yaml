@@ -4,11 +4,11 @@
     - ../vars/ansible-vars
   become: yes
   tasks:
-    - name: get Quobyte session 
+    - name: Get Quobyte session 
       shell:
         cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
 
-    - name: wait for healthmanager to react
+    - name: Wait for healthmanager to react
       pause: 
         seconds: 30
 
@@ -41,7 +41,6 @@
         name: "{{ packages }}"
       vars:
         packages:
-        ## - quobyte-server
-        - quobyte-server-3.0~pre9.2-1.1 
+        - quobyte-server
       when: ansible_facts['os_family'] == "RedHat" and "'HEALTHY' in systemhealth_test.stdout"
 

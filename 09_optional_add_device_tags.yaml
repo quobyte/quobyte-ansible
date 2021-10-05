@@ -4,7 +4,7 @@
     - vars/ansible-vars
   tasks:
   tasks:
-    - name: get Quobyte session 
+    - name: Get Quobyte session 
       shell:
         cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
 
