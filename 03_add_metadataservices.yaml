@@ -13,9 +13,11 @@
   vars_files:
     - vars/ansible-vars
   vars:
-    metadata_host_count: "{{ groups['metadataservices'] | length }}"
+    metadata_device_count: "{{ groups['metadataservices'] | length }}"
   become: yes
   tasks:
+    - set_fact:
+       device_name_short: "{{ metadatadevices | replace( '/dev/','' ) }}"
     - name: Create a xfs filesystem on {{ metadatadevices }}
       filesystem:
         fstype: xfs 
@@ -24,33 +26,28 @@
     - name: Label metadata device with "quobyte-dev" 
       command:
         cmd: xfs_admin -L quobyte-dev /dev/{{ item }} 
-        creates: /var/lib/quobyte/devices/metadata/QUOBYTE_DEV_SETUP
+        creates: /var/lib/quobyte/mnt/inspector-{{ item }}/QUOBYTE_DEV_SETUP
       with_items: "{{ metadatadevices }}"
-    - name: Create metadata mount path
-      file:
-        path: /var/lib/quobyte/devices/metadata-{{ item }}
-        state: directory
-        owner: quobyte
-        mode: '0755'
-      with_items: "{{ metadatadevices }}"
-    - name: Mount metadata device
-      mount:
-        path: /var/lib/quobyte/devices/metadata-{{ item }}
-        src: "/dev/{{ item }}"
-        fstype: xfs 
-        state: mounted
-      with_items: "{{ metadatadevices }}"
+
+    - name: Wait for automounted metadata devices
+      wait_for:
+        path: /proc/mounts
+        search_regex: /var/lib/quobyte/mnt/inspector-{{ item }}
+      with_items:
+        - "{{ device_name_short }}"
+
     - name: Run qmkdev to create metadata device 
       command:
-        cmd: /usr/bin/qmkdev -t METADATA /var/lib/quobyte/devices/metadata-{{ item }}
-        creates: /var/lib/quobyte/devices/metadata-{{ item }}/QUOBYTE_DEV_SETUP
+        cmd: /usr/bin/qmkdev -t METADATA /var/lib/quobyte/mnt/inspector-{{ item }}
+        creates: /var/lib/quobyte/mnt/inspector-{{ item }}/QUOBYTE_DEV_SETUP
       with_items: "{{ metadatadevices }}"
+
 
 - hosts: registryservices[0]
   vars_files:
     - vars/ansible-vars
   vars:
-    metadata_host_count: "{{ groups['metadataservices'] | length }}"
+    metadata_device_count: "{{ metadatadevices | length }}"
   become: yes
   tasks:
 
@@ -58,11 +55,11 @@
       shell:
         cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
 
-    - name: Wait for all {{ metadata_host_count }} metadata devices to become available
+    - name: Wait for all {{ metadata_device_count }} metadata devices to become available
       shell: 
         cmd: qmgmt -u {{ api_service }} device list METADATA | grep ONLINE | wc -l
       register: metadata_device_state
       retries: 12
       delay: 10
-      until: metadata_device_state.stdout == metadata_host_count 
+      until: metadata_device_state.stdout == metadata_device_count 
 
