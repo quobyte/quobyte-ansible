@@ -46,6 +46,15 @@
         packages:
         - quobyte-server
         - quobyte-client 
+        - quobyte-thirdparty-libraries
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Remove Quobyte rpm repository to sources list
+      yum_repository:
+        name: quobyte
+        description: Quobyte rpm repo
+        baseurl: "{{ package_url }}/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}"
+        state: absent
       when: ansible_facts['os_family'] == "RedHat"
 
     - name: remove Debian packages
@@ -60,6 +69,13 @@
         - quobyte-client
       when: ansible_facts['os_family'] == "Debian"
 
+    - name: Remove Quobyte apt repository to sources list
+      apt_repository:
+        repo: "deb {{ package_url }}/apt {{ ansible_distribution_release }} main"
+        state: absent 
+      when: ansible_facts['os_family'] == "Debian"
+
+
     - name: remove Quobyte directories
       file:
         path: "{{ item }}"
@@ -67,3 +83,19 @@
       with_items:
         - /var/lib/quobyte
         - /etc/quobyte 
+
+    - name: Remove Quobyte apt repository from sources list
+      apt_repository:
+        repo: "deb {{ package_url }}/apt {{ ansible_distribution_release }} main"
+        state: absent 
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Remove Quobyte rpm repository from sources list
+      yum_repository:
+        name: quobyte
+        description: Quobyte rpm repo
+        baseurl: "{{ package_url }}/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}"
+        state: absent
+      when: ansible_facts['os_family'] == "RedHat"
+
+
