@@ -12,8 +12,6 @@
 - hosts: metadataservices
   vars_files:
     - vars/ansible-vars
-  vars:
-    metadata_device_count: "{{ groups['metadataservices'] | length }}"
   become: yes
   tasks:
     - set_fact:
@@ -47,7 +45,7 @@
   vars_files:
     - vars/ansible-vars
   vars:
-    metadata_device_count: "{{ metadatadevices | length }}"
+    metadata_device_count: "{{ groups['metadataservices'] | length  * metadatadevices | length }}"
   become: yes
   tasks:
 
