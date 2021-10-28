@@ -45,7 +45,7 @@
   vars_files:
     - vars/ansible-vars
   vars:
-    metadata_device_count: "{{ groups['metadataservices'] | length  * metadatadevices | length }}"
+    metadata_device_count: "{{ metadatadevices | length }}"
   become: yes
   tasks:
 
