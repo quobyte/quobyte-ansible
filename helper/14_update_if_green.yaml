@@ -12,13 +12,23 @@
       pause: 
         seconds: 30
 
-    - name: Test if cluster is HEALTHY 
+    - name: Test if Quobyte 3.x cluster is HEALTHY 
       shell:
         cmd: qmgmt -u {{ api_service }} healthmanager status | grep system_health | awk '{print $2}'
       register: systemhealth_test
       retries: 50
       delay: 5
       until: "'HEALTHY' in systemhealth_test.stdout"
+      when: repo_id is not defined 
+
+    - name: Test if Quobyte 2.x cluster is HEALTHY 
+      shell:
+        cmd: qmgmt -u {{ api_service }} hm status | grep system_health | awk '{print $2}'
+      register: systemhealth_test
+      retries: 50
+      delay: 5
+      until: "'HEALTHY' in systemhealth_test.stdout"
+      when: repo_id is defined 
 
     - debug:
         var: systemhealth_test
