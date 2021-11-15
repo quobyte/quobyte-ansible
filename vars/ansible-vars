@@ -24,4 +24,4 @@ license_file: /home/deploy/license.txt
 
 # Optional: Trusted service networks. Needed for IP-Based tenant distinction.
 # See https://support.quobyte.com/docs/16/latest/multi_tenancy.html
-trusted_service_networks: 10.164.0.0/16,192.168.2.0/24
+## trusted_service_networks: 10.164.0.0/16,192.168.2.0/24
