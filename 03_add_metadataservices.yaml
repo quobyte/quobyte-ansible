@@ -1,6 +1,14 @@
 - hosts: metadataservices 
   become: yes
   tasks:
+
+    - name: Check for trusted service networks
+      lineinfile:
+        path: /etc/quobyte/metadata.cfg
+        state: present
+        line: "rpc.service_networks={{ trusted_service_networks }}"
+      when: 'trusted_service_networks is defined'
+
     - name: Enable Quobyte metadata service
       service:
         enabled: yes

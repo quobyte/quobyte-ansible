@@ -10,10 +10,18 @@
         path: /var/lib/quobyte/devices/registry-data
         state: directory
         mode: '0755'
+
     - name: Register pseudo device to hold registry data
       command:
         cmd: /usr/bin/qbootstrap -y -d /var/lib/quobyte/devices/registry-data 
         creates: /var/lib/quobyte/devices/registry-data/QUOBYTE_DEV_SETUP
+
+    - name: Check for trusted service networks
+      lineinfile:
+        path: /etc/quobyte/registry.cfg
+        state: present
+        line: "rpc.service_networks={{ trusted_service_networks }}"
+      when: 'trusted_service_networks is defined'
 
     - name: Enable Quobyte core services 
       service:
@@ -22,6 +30,19 @@
         name: "{{ item }}"
       with_items: 
          - quobyte-registry
+
+- hosts: apiservices[0]
+  vars_files:
+    - vars/ansible-vars
+  become: yes
+  tasks:
+
+    - name: Enable first API service
+      service:
+        enabled: yes
+        state: started
+        name: "{{ item }}"
+      with_items: 
          - quobyte-api
 
     - name: Wait for API RPC port to become available 
@@ -97,6 +118,9 @@
         cmd: /usr/bin/qmgmt -u {{ api_service }} systemconfig import /tmp/systemconfig
       tags: system
 
+- hosts: registryservices[0]
+  become: yes
+  tasks:
     - name: Restart Quobyte registry services 
       service:
         state: restarted
@@ -105,6 +129,13 @@
 - hosts: registryservices[1:]
   become: yes
   tasks:
+    - name: Check for trusted service networks
+      lineinfile:
+        path: /etc/quobyte/registry.cfg
+        state: present
+        line: "rpc.service_networks={{ trusted_service_networks }}"
+      when: 'trusted_service_networks is defined'
+
     - name: Create quobyte device directory
       file:
         path: /var/lib/quobyte/devices
@@ -122,9 +153,6 @@
         cmd: qmkdev -t REGISTRY -d /var/lib/quobyte/devices/registry-data 
         creates: /var/lib/quobyte/devices/registry-data/QUOBYTE_DEV_SETUP
 
-- hosts: registryservices
-  become: yes
-  tasks:
     - name: Enable Quobyte core services 
       service:
         enabled: yes
