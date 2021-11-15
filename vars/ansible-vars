@@ -21,3 +21,7 @@ admin_password: changeMe
 license_file: /home/deploy/license.txt
 # If you set a repo id you probably want to install Quobyte 2.x
 ## repo_id: 2dxxxxc327Cfyyyasfd
+
+# Optional: Trusted service networks. Needed for IP-Based tenant distinction.
+# See https://support.quobyte.com/docs/16/latest/multi_tenancy.html
+trusted_service_networks: 10.164.0.0/16,192.168.2.0/24
