@@ -1,24 +1,25 @@
 # Registry entries.
-registry: example-host-a.com,example-host-b.com,example-host-c.com,
-# API endpoint Ansible can talk to
-api_service: example-host-a.com
+registry: 10.164.0.40,10.164.0.20,10.164.0.19
+# API endpoint to talk to
+api_service: 10.164.0.40
 # A valid DNS entry for the S3 endpoint
-s3_endpoint: s3.example-hosts.com
+s3_endpoint: s3.quobyte.local
 # Define your storage network
 network: 10.0.0.0/8
-# Where should clients mount volumes?
+# Where should volumes be automatically mounted?
 mountpoint: /quobyte
-# Select one or more dedicated devices for the metadata service
+# Select a dedicated device for the metadata service
 metadatadevices: 
   - sdb
-  - sdc
 # Name of your Quobyte cluster
-clustername: quobyte-101
+clustername: qb-regtest
 # Quobyte admin user
 admin_user: storageadmin
 # Quobyte admin user password. Consider ansible vault etc.
 admin_password: changeMe
 # Path to license file
 license_file: /home/deploy/license.txt
+# How many servers should run Quobyte core services?
+clustersize: 3
 # If you set a repo id you probably want to install Quobyte 2.x
 ## repo_id: 2dxxxxc327Cfyyyasfd

@@ -1,60 +1,52 @@
-## Use this inventory to layout a plan for your storage cluster.
 all:
   vars: 
     ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
   children: 
-   # all storage cluster members. Used to add repositories, installl quobyte-server etc.
    quobyteservers:
     hosts:
-      example-host-a.com:
-      example-host-b.com:
-      example-host-c.com:
-      example-host-d.com:
-      example-host-e.com:
-   # On which hosts shall the webconsole be running?
+      10.164.0.40:
+      10.164.0.20:
+      10.164.0.19:
+      10.164.0.56:
    webconsoleservices:
     hosts:
-      example-host-a.com:
-      example-host-b.com:
-      example-host-c.com:
-   # On which hosts shall the REST-API be running?
+      10.164.0.40:
+      10.164.0.20:
+      10.164.0.19:
    apiservices:
     hosts:
-      example-host-a.com:
-      example-host-b.com:
-      example-host-c.com:
-   # On which hosts shall the registry service be running?
+      10.164.0.40:
+      10.164.0.20:
+      10.164.0.19:
    registryservices:
     hosts:
-      example-host-a.com:
-      example-host-b.com:
-      example-host-c.com:
-   # On which hosts shall the metadata service be running?
+      10.164.0.40:
+      10.164.0.20:
+      10.164.0.19:
    metadataservices:
     hosts:
-      example-host-a.com:
-      example-host-b.com:
-      example-host-c.com:
-   # On which hosts shall the data service be running?
+      10.164.0.40:
+      10.164.0.20:
+      10.164.0.19:
    dataservices:
     hosts:
-      example-host-a.com:
-      example-host-b.com:
-      example-host-c.com:
-      example-host-d.com:
-      example-host-e.com:
-   # On which hosts shall the obeject storage proxy be running?
+      10.164.0.40:
+      10.164.0.20:
+      10.164.0.19:
+      10.164.0.56:
    s3services:
     hosts:
-      example-host-a.com:
-      example-host-b.com:
-      example-host-c.com:
+      10.164.0.40:
+      10.164.0.20:
+      10.164.0.19:
+   nfsservices:
+    hosts:
+      10.164.0.40:
+      10.164.0.20:
+      10.164.0.19:
 
-   # On which hosts shall the client be installed?
-   # This will install the client auto-mounter that 
-   # mounts all available volumes.
+
    clients: 
     hosts:
-      example-host-f.com:
-      
+      10.164.0.4:
 
