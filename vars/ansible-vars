@@ -1,9 +1,9 @@
-# Registry entries.
-registry: 10.164.0.40,10.164.0.20,10.164.0.19
+# Registry entries:
+registry: example-host-a.com,example-host-b.com,example-host-c.com 
 # API endpoint to talk to
-api_service: 10.164.0.40
+api_service: example-host-a.com
 # A valid DNS entry for the S3 endpoint
-s3_endpoint: s3.quobyte.local
+s3_endpoint: s3.example-hosts.com
 # Define your storage network
 network: 10.0.0.0/8
 # Where should volumes be automatically mounted?
@@ -19,7 +19,5 @@ admin_user: storageadmin
 admin_password: changeMe
 # Path to license file
 license_file: /home/deploy/license.txt
-# How many servers should run Quobyte core services?
-clustersize: 3
 # If you set a repo id you probably want to install Quobyte 2.x
 ## repo_id: 2dxxxxc327Cfyyyasfd
