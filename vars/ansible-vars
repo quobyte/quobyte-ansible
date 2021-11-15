@@ -19,7 +19,5 @@ admin_user: storageadmin
 admin_password: changeMe
 # Path to license file
 license_file: /home/deploy/license.txt
-# How many servers should run Quobyte core services?
-clustersize: 3
 # If you set a repo id you probably want to install Quobyte 2.x
 ## repo_id: 2dxxxxc327Cfyyyasfd
