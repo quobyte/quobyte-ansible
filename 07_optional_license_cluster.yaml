@@ -39,3 +39,12 @@
         state: restarted
         name: quobyte-webconsole 
 
+- hosts: metadataservices 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte metadata services 
+      service:
+        state: restarted
+        name: quobyte-metadata
+
