@@ -1,0 +1,45 @@
+- hosts: registryservices 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte registry services 
+      service:
+        state: restarted
+        name: quobyte-registry 
+
+- hosts: apiservices 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte api services 
+      service:
+        state: restarted
+        name: quobyte-api 
+
+- hosts: webconsoleservices 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte webconsole services 
+      service:
+        state: restarted
+        name: quobyte-webconsole 
+
+- hosts: metadataservices 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte webconsole services 
+      service:
+        state: restarted
+        name: quobyte-metadata
+
+- hosts: dataservices 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte dataservices 
+      service:
+        state: restarted
+        name: quobyte-data
+
