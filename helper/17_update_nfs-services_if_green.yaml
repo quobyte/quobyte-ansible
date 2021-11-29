@@ -1,0 +1,55 @@
+- hosts: nfsservices
+  serial: 1
+  vars_files:
+    - ../vars/ansible-vars
+  become: yes
+  vars: 
+    # You can set explicit Quobyte versions here, for example to do a rollback
+    # example for a Debian/ Ubuntu version string:
+    ## quobyte_version: =2:3.0~pre9.1-1
+    # example for a RedHat/ CentOS version string:
+    ## quobyte_version: "-3.0~pre11-2.1" 
+    # Keep an empty string to install latest version:
+    ## quobyte_version: ""
+    quobyte_version: "-2.37-2.1"
+  tasks:
+    - name: "Check Quobyte cluster health state"
+      uri:
+        url: "http://{{ api_service }}:7860"
+        user: "{{ admin_user }}"
+        password: "{{ admin_password }}"
+        force_basic_auth: yes
+        method: POST
+        body_format: json
+        body: "{\"params\": {\"retry\": \"INTERACTIVE\"}, \"jsonrpc\": \"2.0\", \"method\": \"getHealthManagerStatus\"}"
+        return_content: yes
+      register: systemhealth_test
+      retries: 50
+      delay: 5
+      until: "'HEALTHY' in systemhealth_test.json.result.health_manager_status.system_health"
+
+    - debug:
+        var: systemhealth_test
+
+    - name: Install Debian packages
+      apt:
+        name: "{{ packages }}"
+        state: present
+        force: yes
+        update_cache: yes
+      vars:
+        packages:
+        - quobyte-nfs{{ quobyte_version }}
+      when: ansible_facts['os_family'] == "Debian" and "'HEALTHY' in systemhealth_test.stdout" 
+
+    - name: Install RPM packages
+      yum: 
+        update_cache: yes
+        allow_downgrade: yes
+        state: present 
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - quobyte-nfs{{ quobyte_version }}
+      when: ansible_facts['os_family'] == "RedHat" and "'HEALTHY' in systemhealth_test.stdout"
+
