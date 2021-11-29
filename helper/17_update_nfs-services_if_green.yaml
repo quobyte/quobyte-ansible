@@ -42,14 +42,25 @@
         - quobyte-nfs{{ quobyte_version }}
       when: ansible_facts['os_family'] == "Debian" and "'HEALTHY' in systemhealth_test.stdout" 
 
-    - name: Install RPM packages
+    - name: Install RPM latest quobyte-nfs version
       yum: 
         update_cache: yes
         allow_downgrade: yes
-        state: present 
+        state: latest
         name: "{{ packages }}"
       vars:
         packages:
         - quobyte-nfs{{ quobyte_version }}
-      when: ansible_facts['os_family'] == "RedHat" and "'HEALTHY' in systemhealth_test.stdout"
+      when: ansible_facts['os_family'] == "RedHat" and "'HEALTHY' in systemhealth_test.stdout" and not quobyte_version
+
+    - name: Install RPM package quobyte-nfs{{ quobyte_version }}
+      yum: 
+        update_cache: yes
+        allow_downgrade: yes
+        state: installed
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - quobyte-nfs{{ quobyte_version }}
+      when: ansible_facts['os_family'] == "RedHat" and "'HEALTHY' in systemhealth_test.stdout" and quobyte_version
 
