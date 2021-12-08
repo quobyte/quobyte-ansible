@@ -29,7 +29,7 @@
   become: yes
   serial: 1
   tasks:
-    - name: Restart Quobyte webconsole services 
+    - name: Restart Quobyte metadata services 
       service:
         state: restarted
         name: quobyte-metadata
