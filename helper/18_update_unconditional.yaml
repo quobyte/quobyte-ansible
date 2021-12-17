@@ -1,0 +1,95 @@
+- hosts: quobyteservers 
+  ##serial: 1
+  vars_files:
+    - ../vars/ansible-vars
+  become: yes
+  vars: 
+    quobyte_version: "=2:3.0~pre13.1-1" 
+
+  tasks:
+
+    - name: Stop Quobyte registry services 
+      ignore_errors: yes
+      service:
+        state: stopped
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-registry
+         - quobyte-api
+         - quobyte-data
+         - quobyte-metadata
+         - quobyte-webconsole
+         - quobyte-s3
+         - quobyte-nfs
+
+    - name: Install Debian packages
+      apt:
+        name: "{{ packages }}"
+        state: present
+        ##state: latest
+        update_cache: yes
+      vars:
+        packages:
+        - quobyte-server{{ quobyte_version }}
+      when: ansible_facts['os_family'] == "Debian" and "'HEALTHY' in systemhealth_test.stdout" 
+
+    - name: Install RPM packages
+      yum: 
+        update_cache: yes
+        allow_downgrade: yes
+        state: present 
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - quobyte-server{{ quobyte_version }}
+      when: ansible_facts['os_family'] == "RedHat" and "'HEALTHY' in systemhealth_test.stdout"
+
+- hosts: registryservices 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte registry services 
+      service:
+        state: started
+        name: quobyte-registry 
+- hosts: apiservices 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte api services 
+      service:
+        state: started
+        name: quobyte-api 
+- hosts: webconsoleservices 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte webconsole services 
+      service:
+        state: started
+        name: quobyte-webconsole 
+- hosts: metadataservices 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte metadata services 
+      service:
+        state: started
+        name: quobyte-metadata 
+- hosts: dataservices 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte data services 
+      service:
+        state: started
+        name: quobyte-data 
+- hosts: s3services 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte s3 services 
+      service:
+        state: started
+        name: quobyte-s3 
+

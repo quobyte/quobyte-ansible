@@ -8,7 +8,8 @@
     #quobyte_version: =2:3.0~pre8.1
     #quobyte_version: =2:3.0~pre9-1
     #quobyte_version: =2:3.0~pre9.1-1
-    quobyte_version: "-3.0~pre11-2.1" 
+    ##quobyte_version: "-3.0~pre11-2.1" 
+    quobyte_version: "" 
 
   tasks:
     - name: Get Quobyte session 
@@ -19,31 +20,31 @@
       pause: 
         seconds: 30
 
-    - name: Test if Quobyte 3.x cluster is HEALTHY 
-      shell:
-        cmd: qmgmt -u {{ api_service }} healthmanager status | grep system_health | awk '{print $2}'
+    - name: "Check Quobyte cluster health state"
+      uri:
+        url: "http://{{ api_service }}:7860"
+        user: "{{ admin_user }}"
+        password: "{{ admin_password }}"
+        force_basic_auth: yes
+        method: POST
+        body_format: json
+        body: "{\"params\": {\"retry\": \"INTERACTIVE\"}, \"jsonrpc\": \"2.0\", \"method\": \"getHealthManagerStatus\"}"
+        return_content: yes
       register: systemhealth_test
       retries: 50
       delay: 5
-      until: "'HEALTHY' in systemhealth_test.stdout"
-      when: repo_id is not defined 
-
-    - name: Test if Quobyte 2.x cluster is HEALTHY 
-      shell:
-        cmd: qmgmt -u {{ api_service }} hm status | grep system_health | awk '{print $2}'
-      register: systemhealth_test
-      retries: 50
-      delay: 5
-      until: "'HEALTHY' in systemhealth_test.stdout"
-      when: repo_id is defined 
+      #until: "'HEALTHY' in systemhealth_test.json.result.health_manager_status.system_health"
+      ##until: "'HEALTHY' in systemhealth_test"
 
     - debug:
         var: systemhealth_test
 
+
     - name: Install Debian packages
       apt:
         name: "{{ packages }}"
-        state: present
+        ##state: present
+        state: latest
         update_cache: yes
       vars:
         packages:
