@@ -15,7 +15,7 @@
         cmd: qmgmt -u {{ api_service }} tenant list | grep "^{{ my_tenant }} " | awk '{print $1}'
       register: my_tenant_test
 
-    - name: create tenant 
+    - name: Create tenant 
       shell:
         cmd: qmgmt -u {{ api_service }} tenant create {{ my_tenant }} 
       when: my_tenant not in my_tenant_test.stdout
@@ -25,7 +25,12 @@
         cmd: qmgmt -u {{ api_service }} volume list | grep "^{{ my_volume }} " | awk '{print $1}'
       register: my_volume_test
 
-    - name: create volume
+    - name: Create volume using policy rules
       shell:
-        cmd: qmgmt -u {{ api_service }} volume create {{ my_tenant }}/{{ my_volume }} user=root group=root configuration_name=noVolumeConfig
-      when: my_volume not in my_volume_test.stdout
+        cmd: qmgmt -u {{ api_service }} volume create "{{ my_tenant }}"/"{{ my_volume }}" root root 
+      when: my_volume not in my_volume_test.stdout and repo_id is not defined 
+
+    - name: Create volume using volume config
+      shell:
+        cmd: qmgmt -u {{ api_service }} volume create "{{ my_tenant }}"/"{{ my_volume }}" root root BASE
+      when: my_volume not in my_volume_test.stdout and repo_id is not defined 
