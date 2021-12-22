@@ -33,8 +33,7 @@
       register: systemhealth_test
       retries: 50
       delay: 5
-      #until: "'HEALTHY' in systemhealth_test.json.result.health_manager_status.system_health"
-      ##until: "'HEALTHY' in systemhealth_test"
+      until: "'HEALTHY' in systemhealth_test.json.result.health_manager_status.system_health"
 
     - debug:
         var: systemhealth_test
