@@ -65,6 +65,11 @@
         src: templates/host.cfg.jinja2
         dest: "/etc/quobyte/host.cfg"
 
+    - name: Ensure config file exists
+      file:
+        path: /etc/quobyte/nfs.cfg
+        state: touch
+
     - name: Enable Quobyte NFS proxy
       service:
         enabled: yes
