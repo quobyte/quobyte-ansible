@@ -33,4 +33,4 @@
     - name: Create volume using volume config
       shell:
         cmd: qmgmt -u {{ api_service }} volume create "{{ my_tenant }}"/"{{ my_volume }}" root root BASE
-      when: my_volume not in my_volume_test.stdout and repo_id is not defined 
+      when: my_volume not in my_volume_test.stdout and repo_id is defined 
