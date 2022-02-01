@@ -1,6 +1,8 @@
 - hosts: registryservices[0]
   vars_files:
     - ../vars/ansible-vars
+  vars:
+          - cluster_name: "Enjoy Storage"
   become: yes
   tasks:
     - name: Create API json payload
@@ -35,14 +37,18 @@
     - name: Set some variable 
       set_fact:
         #systemconfig_var: "{{ systemconfig_var|combine({'params': {'system_configuration': {'health_manager_config': {'enable': false}}}}, recursive=True) }}"
-              systemconfig_var: "{{ systemconfig_var|combine({'params': {'system_configuration': {'cluster_configuration': {'cluster_name': 'Enjoy Quobyte'}}}}, recursive=True) }}"
+        systemconfig_var: "{{ systemconfig_var|combine({'params': {'system_configuration': {'cluster_configuration': {'cluster_name': '{{ cluster_name }}'}}}}, recursive=True) }}"
 
     - name: Write systemconfig to file
       copy:
         content: "{{ systemconfig_var | to_nice_json }}"
-        dest: /tmp/final.json
+        dest: /tmp/systemconfig.json
 
     - name: Load systemconfig from json file
       shell:
-        cmd:  curl -s -u {{admin_user}}:{{admin_password}} http://{{api_service}}:7860 -d @/tmp/final.json 
+        cmd:  curl -s -u {{admin_user}}:{{admin_password}} http://{{api_service}}:7860 -d @/tmp/systemconfig.json
       
+    - name: Remove systemconfig dump
+      file:
+        path: /tmp/systemconfig.json
+        state: absent
