@@ -1,0 +1,48 @@
+- hosts: registryservices[0]
+  vars_files:
+    - ../vars/ansible-vars
+  become: yes
+  tasks:
+    - name: Create API json payload
+      blockinfile:
+        path: /tmp/getconfig
+        create: true
+        marker: ""
+        block: |
+          {
+          "id": "text",
+          "jsonrpc": "2.0",
+          "method": "getConfiguration",
+          "params": {
+            "configuration_type": "SYSTEM_CONFIGURATION",
+            "retry": "INFINITELY"
+            }
+          }
+ 
+    - name: Dump systemconfig to json file
+      shell:
+        cmd:  curl -s -u {{admin_user}}:{{admin_password}} http://{{api_service}}:7860 -d @/tmp/getconfig > /tmp/systemconfig.json
+      
+    - name: Load systemconfig from dump file to Ansible variable
+      include_vars:
+        file: /tmp/systemconfig.json
+        name: systemconfig_dump
+
+    - name: Create new systemconfig
+      set_fact:
+        systemconfig_var: "{{ systemconfig_var | default([]) | combine({ 'method': 'setConfiguration', 'id': 'text', 'jsonrpc': '2.0', 'params': {'configuration_type': 'SYSTEM_CONFIGURATION', 'system_configuration': '{{ systemconfig_dump.result.system_configuration }}' } }) }}"
+
+    - name: Set some variable 
+      set_fact:
+        #systemconfig_var: "{{ systemconfig_var|combine({'params': {'system_configuration': {'health_manager_config': {'enable': false}}}}, recursive=True) }}"
+              systemconfig_var: "{{ systemconfig_var|combine({'params': {'system_configuration': {'cluster_configuration': {'cluster_name': 'Enjoy Quobyte'}}}}, recursive=True) }}"
+
+    - name: Write systemconfig to file
+      copy:
+        content: "{{ systemconfig_var | to_nice_json }}"
+        dest: /tmp/final.json
+
+    - name: Load systemconfig from json file
+      shell:
+        cmd:  curl -s -u {{admin_user}}:{{admin_password}} http://{{api_service}}:7860 -d @/tmp/final.json 
+      
