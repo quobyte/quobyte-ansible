@@ -30,25 +30,24 @@
       set_fact:
         systemconfig_var: "{{ systemconfig_var | default([]) | combine({ 'method': 'setConfiguration', 'id': 'text', 'jsonrpc': '2.0', 'params': {'configuration_type': 'SYSTEM_CONFIGURATION', 'system_configuration': '{{ systemconfig }}' } }) }}"
 
-    - name: Set some variable 
-      set_fact:
-        systemconfig_var: "{{ systemconfig_var|combine({'params': {'system_configuration': {'cluster_configuration': {'cluster_name': 'Enjoy Distributed storage'}}}}, recursive=True) }}"
+#    - name: Set some variable 
+#      set_fact:
+#        systemconfig_var: "{{ systemconfig_var|combine({'params': {'system_configuration': {'cluster_configuration': {'cluster_name': 'Enjoy Distributed storage'}}}}, recursive=True) }}"
 
     - name: Set some other variable 
       set_fact:
-        systemconfig_var: "{{ systemconfig_var|combine({'params': {'system_configuration': {'health_manager_config': {'enable': false }}}}, recursive=True) }}"
+        systemconfig_var: "{{ systemconfig_var|combine({'params': {'system_configuration': {'health_manager_config': {'enable': true }}}}, recursive=True) }}"
 
-    - name: Write systemconfig to file
-      copy:
-        content: "{{ systemconfig_var | to_nice_json }}"
-        dest: /tmp/systemconfig.json
+    - debug:
+            var: systemconfig_var
 
-    - name: Load systemconfig from json file
-      shell:
-        cmd:  curl -s -u {{admin_user}}:{{admin_password}} http://{{api_service}}:7860 -d @/tmp/systemconfig.json
-        #cmd:  curl -s -u {{admin_user}}:{{admin_password}} http://{{api_service}}:7860 -d "{{ systemconfig_var }}"
-      
-    - name: Remove systemconfig dump
-      file:
-        path: /tmp/systemconfig.json
-        state: absent
+
+    - name: Write cluster config to Quobyte 
+      uri:
+        url: "http://{{api_service}}:7860"
+        user: "{{admin_user}}"
+        password: "{{admin_password}}"
+        force_basic_auth: yes
+        method: POST
+        body_format: json
+        body: "{{ systemconfig_var }}"
