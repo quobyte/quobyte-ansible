@@ -97,6 +97,8 @@
         - java-11-openjdk 
         - quobyte-server
         - xfsprogs
+        - tuned
+        - chrony
       when: ansible_facts['os_family'] == "Suse"
 
 
