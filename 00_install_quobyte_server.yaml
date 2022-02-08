@@ -28,24 +28,38 @@
         rpm_distribution_string: "{{ ansible_distribution }}"
       when: ansible_distribution is regex('^CentOS*') 
 
+    - set_fact: 
+        rpm_distribution_string: "SLE"
+      when: ansible_distribution is regex('SLES') 
+
+
     - name: Add Quobyte repository signing key
       apt_key:
         url: https://packages.quobyte.com/repo/v3/apt/pubkey.gpg 
         state: present
       when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
     - name: Add Quobyte apt repository to sources list
       apt_repository:
         repo: "deb {{ package_url }}/apt {{ ansible_distribution_release }} main"
         state: present
       when: ansible_facts['os_family'] == "Debian"
 
-    - name: Add Quobyte rpm repository to sources list
+    - name: Add Quobyte YUM repository to sources list
       yum_repository:
         name: quobyte
         description: Quobyte rpm repo
         baseurl: "{{ package_url }}/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}"
         gpgkey: https://packages.quobyte.com/repo/v3/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}/repodata/repomd.xml.key
       when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Add Quobyte Zypper repository to sources list
+      zypper_repository:
+        name: quobyte
+        description: Quobyte rpm repo
+        repo: "{{ package_url }}/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}"
+        auto_import_keys: yes
+      when: ansible_facts['os_family'] == "Suse"
 
     - name: Install Debian packages
       apt:
@@ -70,7 +84,21 @@
         - java-11-openjdk 
         - quobyte-server
         - xfsprogs
-      when: ansible_facts['os_family'] == "RedHat"
+      when: ansible_facts['os_family'] == "RedHat" 
+
+    - name: Install RPM packages on Suse Linux 
+      zypper: 
+        update_cache: yes
+        oldpackage: yes
+        state: present
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - java-11-openjdk 
+        - quobyte-server
+        - xfsprogs
+      when: ansible_facts['os_family'] == "Suse"
+
 
     - name: Write /etc/quobyte/host.cfg
       template:
