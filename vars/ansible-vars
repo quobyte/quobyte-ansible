@@ -15,7 +15,7 @@ service_network: 10.0.0.0/8
 client_network: 10.0.0.0/8
 # Trusted service network(s): Any service running within this segment will be trusted.
 # All others need to authenticate. See https://support.quobyte.com/docs/16/latest/service_authentication.html
-trusted_service_networks: 10.164.0.0/16
+trusted_service_networks: 10.0.0.0/8
 
 ### Storage Device Layout
 # Select one or more dedicated metadata device(s).
@@ -32,7 +32,7 @@ s3_endpoint: s3.example-hosts.com
 mountpoint: /quobyte
 
 # Name of your Quobyte cluster
-clustername: qb-regtest
+clustername: quobyte 
 
 # Quobyte admin user
 admin_user: storageadmin
@@ -44,6 +44,9 @@ license_file: /home/deploy/license.txt
 
 ## Optional config settings
 
-# If you set a repo id you probably want to install Quobyte 2.x
-## repo_id: 2dxxxxc327Cfyyyasfd
+## Sometimes you will use your own mirror to provide Quobyte packages
+# dedicated_mirror: https://mypackages.example.com/repo/quobyte/releasebranch
+
+## If you set a repo id you probably want to install Quobyte 2.x
+# repo_id: 2dxxxxc327Cfyyyasfd
 

@@ -14,6 +14,10 @@
       when: repo_id is not defined 
 
     - set_fact: 
+        package_url: "{{ dedicated_mirror }}"
+      when: dedicated_mirror is defined 
+
+    - set_fact: 
         rpm_distribution_string: RHEL 
       when: ansible_distribution is regex('^RedHat*') 
 
