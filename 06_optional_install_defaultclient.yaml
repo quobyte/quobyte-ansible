@@ -25,7 +25,6 @@
         rpm_distribution_string: "SLE"
       when: ansible_distribution is regex('SLES') 
 
-
     - name: Add Quobyte repository signing key
       apt_key:
         url: https://packages.quobyte.com/repo/v3/apt/pubkey.gpg 
@@ -53,7 +52,6 @@
         repo: "{{ package_url }}/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}"
         auto_import_keys: yes
       when: ansible_facts['os_family'] == "Suse"
-
 
     - name: Install Debian packages
       apt:
@@ -86,13 +84,6 @@
         packages:
         - quobyte-client
       when: ansible_facts['os_family'] == "Suse"
-
-#    - name: Create /etc/quobyte 
-#      file:
-#        path: /etc/quobyte
-#        state: directory
-#        group: root
-#        owner: root
 
     - name: Write /etc/quobyte/client-service.cfg
       template:
