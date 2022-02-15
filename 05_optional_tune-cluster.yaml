@@ -3,17 +3,24 @@
     - vars/ansible-vars
   become: yes
   tasks:
-    - name: Install tuned Debian package 
+    - name: Install tuned package on Debian
       apt: 
         name: tuned
         state: present
       when: ansible_facts['os_family'] == "Debian"
 
-    - name: Install tuned RPM package 
+    - name: Install tuned package on Redhat
       yum: 
         name: tuned
         state: present
       when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Install tuned package on Suse Linux 
+      zypper: 
+        update_cache: yes
+        state: present
+        name: tuned 
+      when: ansible_facts['os_family'] == "Suse"
 
     - name: Set Quobyte tuned server profile
       command: tuned-adm profile quobyte-server-performance
