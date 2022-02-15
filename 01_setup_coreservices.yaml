@@ -5,12 +5,12 @@
   become: yes
   tasks:
 
-    - name: Check for trusted service networks
-      lineinfile:
-        path: /etc/quobyte/registry.cfg
-        state: present
-        line: "rpc.service_networks={{ trusted_service_networks }}"
-      when: 'trusted_service_networks is defined'
+#    - name: Check for trusted service networks
+#      lineinfile:
+#        path: /etc/quobyte/registry.cfg
+#        state: present
+#        line: "rpc.service_networks={{ trusted_service_networks }}"
+#      when: 'trusted_service_networks is defined'
 
     - name: Create registry data directory
       file:
@@ -97,16 +97,17 @@
         marker: "# network section"
         block: |
           network {
-            enabled_service_networks: "{{ network }}"
-            enabled_client_networks: "{{ network }}"
+            enabled_service_networks: "{{ service_network }}"
+            enabled_client_networks: "{{ client_network }}"
+            trusted_service_networks: "{{ trusted_service_networks }}"
           }
       when: '"network {" not in systemconfig.stdout' 
 
-    - name: Set service network 
+    - name: Set service network config
       lineinfile:
         path: /tmp/systemconfig
         regexp: '^  enabled_service_networks:.*'
-        line: '  enabled_service_networks: "{{ network }}"'
+        line: '  enabled_service_networks: "{{ service_network }}"'
         insertafter: 'network {'
       when: '"network {" in systemconfig.stdout'
 
@@ -114,7 +115,15 @@
       lineinfile:
         path: /tmp/systemconfig
         regexp: '^  enabled_client_networks:.*'
-        line: '  enabled_client_networks: "{{ network }}"'
+        line: '  enabled_client_networks: "{{ client_network }}"'
+        insertafter: 'network {'
+      when: '"network {" in systemconfig.stdout'
+
+    - name: Set trusted network
+      lineinfile:
+        path: /tmp/systemconfig
+        regexp: '^  trusted_service_networks:.*'
+        line: '  trusted_service_networks: "{{ trusted_service_networks }}"'
         insertafter: 'network {'
       when: '"network {" in systemconfig.stdout'
 

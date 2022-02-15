@@ -1,27 +1,49 @@
+## Global configuration: valid for clients and servers
 # Registry entries:
 registry: example-host-a.com,example-host-b.com,example-host-c.com 
-# API endpoint to talk to
+
+## Ansible configuration:
+# Quobyte API endpoint to talk to
 api_service: example-host-a.com
-# A valid DNS entry for the S3 endpoint
-s3_endpoint: s3.example-hosts.com
-# Define your storage network
-network: 10.0.0.0/8
-# Where should volumes be automatically mounted?
-mountpoint: /quobyte
-# Select a dedicated device for the metadata service
+
+## Storage server configuration
+
+### Networking
+# Service network(s): Quobyte services will communicate through this network.
+service_network: 10.0.0.0/8
+# Client network(s): Quobyte clients will use this network to communicate with Quobyte services.
+client_network: 10.0.0.0/8
+# Trusted service network(s): Any service running within this segment will be trusted.
+# All others need to authenticate. See https://support.quobyte.com/docs/16/latest/service_authentication.html
+trusted_service_networks: 10.164.0.0/16
+
+### Storage Device Layout
+# Select one or more dedicated metadata device(s).
+# All other available devices will be used as data devices.
 metadatadevices: 
   - sdb
+
+## Service configuration
+# A valid DNS entry for the S3 endpoint
+s3_endpoint: s3.example-hosts.com
+
+## Client configuration
+# Mountpoint for quobyte-client.service 
+mountpoint: /quobyte
+
 # Name of your Quobyte cluster
 clustername: qb-regtest
+
 # Quobyte admin user
 admin_user: storageadmin
 # Quobyte admin user password. Consider ansible vault etc.
 admin_password: changeMe
+
 # Path to license file
 license_file: /home/deploy/license.txt
+
+## Optional config settings
+
 # If you set a repo id you probably want to install Quobyte 2.x
 ## repo_id: 2dxxxxc327Cfyyyasfd
 
-# Optional: Trusted service networks. Needed for IP-Based tenant distinction.
-# See https://support.quobyte.com/docs/16/latest/multi_tenancy.html
-## trusted_service_networks: 10.164.0.0/16,192.168.2.0/24
