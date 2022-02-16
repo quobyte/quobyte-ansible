@@ -2,6 +2,7 @@
 all:
   vars: 
     ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+    ansible_python_interpreter: /usr/bin/python3
   children: 
    # all storage cluster members. Used to add repositories, installl quobyte-server etc.
    quobyteservers:
