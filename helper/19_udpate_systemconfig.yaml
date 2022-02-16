@@ -2,8 +2,8 @@
   vars_files:
     - ../vars/ansible-vars
   vars:
-    - cluster_name: "Enjoy Distributed Storage"
-    - healthmanager_enabled: false 
+    ##- cluster_name: "Enjoy Quobyte Distributed Storage"
+    - healthmanager_enabled: true
   become: yes
   tasks:
 
@@ -32,15 +32,21 @@
 
     - name: set param healthmanager
       set_fact:
-        param1: {'params': {'system_configuration': {'health_manager_config': {'enable': "{{ healthmanager_enabled }}" }}}}
+        params: {'params': {'system_configuration': {'health_manager_config': {'enable': "{{ healthmanager_enabled }}" }}}}
 
     - name: Set some other variable 
       set_fact:
         param2: {'params': {'system_configuration': {'cluster_configuration': {'cluster_name': "{{ cluster_name }}" }}}} 
+      when: cluster_name is defined
+
+    - name: Merge params
+      set_fact:
+        params: "{{ params|combine(param2, recursive=True) }}"
+      when: param2 is defined
 
     - name: Merge all settings
       set_fact:
-        systemconfig_var: "{{ systemconfig_var|combine(param1, param2, recursive=True) }}"
+        systemconfig_var: "{{ systemconfig_var|combine(params, recursive=True) }}"
 
     - debug:
         var: systemconfig_var
