@@ -3,7 +3,7 @@
     - ../vars/ansible-vars
   vars:
     - cluster_name: "Enjoy Distributed Storage"
-    - healthmanager_enabled: true
+    - healthmanager_enabled: false 
   become: yes
   tasks:
 
@@ -30,16 +30,20 @@
       set_fact:
         systemconfig_var: "{{ systemconfig_var | default([]) | combine({ 'method': 'setConfiguration', 'id': 'text', 'jsonrpc': '2.0', 'params': {'configuration_type': 'SYSTEM_CONFIGURATION', 'system_configuration': '{{ systemconfig }}' } }) }}"
 
-#    - name: Set some variable 
-#      set_fact:
-#        systemconfig_var: "{{ systemconfig_var|combine({'params': {'system_configuration': {'cluster_configuration': {'cluster_name': 'Enjoy Distributed storage'}}}}, recursive=True) }}"
+    - name: set param healthmanager
+      set_fact:
+        param1: {'params': {'system_configuration': {'health_manager_config': {'enable': "{{ healthmanager_enabled }}" }}}}
 
     - name: Set some other variable 
       set_fact:
-        systemconfig_var: "{{ systemconfig_var|combine({'params': {'system_configuration': {'health_manager_config': {'enable': true }}}}, recursive=True) }}"
+        param2: {'params': {'system_configuration': {'cluster_configuration': {'cluster_name': "{{ cluster_name }}" }}}} 
+
+    - name: Merge all settings
+      set_fact:
+        systemconfig_var: "{{ systemconfig_var|combine(param1, param2, recursive=True) }}"
 
     - debug:
-            var: systemconfig_var
+        var: systemconfig_var
 
 
     - name: Write cluster config to Quobyte 
