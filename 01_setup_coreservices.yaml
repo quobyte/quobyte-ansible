@@ -5,12 +5,12 @@
   become: yes
   tasks:
 
-#    - name: Check for trusted service networks
-#      lineinfile:
-#        path: /etc/quobyte/registry.cfg
-#        state: present
-#        line: "rpc.service_networks={{ trusted_service_networks }}"
-#      when: 'trusted_service_networks is defined'
+    - name: Check for trusted service networks
+      lineinfile:
+        path: /etc/quobyte/registry.cfg
+        state: present
+        line: "rpc.service_networks={{ trusted_service_networks }}"
+      when: 'trusted_service_networks is defined'
 
     - name: Create registry data directory
       file:
@@ -101,7 +101,19 @@
             enabled_client_networks: "{{ client_network }}"
             trusted_service_networks: "{{ trusted_service_networks }}"
           }
-      when: '"network {" not in systemconfig.stdout' 
+      when: '"network {" not in systemconfig.stdout and repo_id is not defined'
+
+    - name: Add service network block to systemconfig
+      blockinfile:
+        path: /tmp/systemconfig
+        marker: "# network section"
+        block: |
+          network {
+            enabled_service_networks: "{{ service_network }}"
+            enabled_client_networks: "{{ client_network }}"
+          }
+      when: '"network {" not in systemconfig.stdout and repo_id is defined'
+
 
     - name: Set service network config
       lineinfile:
@@ -125,7 +137,7 @@
         regexp: '^  trusted_service_networks:.*'
         line: '  trusted_service_networks: "{{ trusted_service_networks }}"'
         insertafter: 'network {'
-      when: '"network {" in systemconfig.stdout'
+      when: '"network {" in systemconfig.stdout and repo_id is not defined'
 
     - name: Import system configuration
       shell:
