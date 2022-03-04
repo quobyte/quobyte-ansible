@@ -2,6 +2,10 @@
 
 This collection of playbooks installs a Quobyte cluster from scratch. 
 
+In depth documentation for Quobyte can be found here:
+[Quobyte Documentation](https://support.quobyte.com/docs/16/latest/).
+Before installing it is recommended reading the [prerequisites section](https://support.quobyte.com/docs/16/latest/installation_overview.html#installation-prerequisites) of that documentation.
+
 ## Installing Quobyte
 
 ### Step one: Adjust Inventory and Variables 
