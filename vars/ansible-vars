@@ -1,9 +1,19 @@
-## Global configuration: valid for clients and servers
+## Global registry configuration: valid for clients and servers
+# This variable can be either a list of IP addresses , a list of 
+# DNS A-Records (both corresponding to your inventory registry section)
+# or a DNS SRV record (that, in turn, resolves to all hosts from
+# the inventory registry section).
 # Registry entries:
 registry: example-host-a.com,example-host-b.com,example-host-c.com 
 
 ## Ansible configuration:
 # Quobyte API endpoint to talk to
+# You can either chose one explicit API host address here
+# or, in case you will use a HTTP loadbalancer for your 
+# API endpoints, the address of that loadbalancer.
+# Can be an IP-Address or DNS A-Record entry.
+# It is only used by Ansible and is independent from the 
+# resulting Quobyte installation
 api_service: example-host-a.com
 
 ## Storage server configuration
@@ -25,6 +35,9 @@ metadatadevices:
 
 ## Service configuration
 # A valid DNS entry for the S3 endpoint
+# This should usually be the Address of an 
+# HTTP(s) load balancer if you run more than
+# one Quobyte S3 service. 
 s3_endpoint: s3.example-hosts.com
 
 ## Client configuration
