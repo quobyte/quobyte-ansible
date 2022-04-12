@@ -40,7 +40,7 @@
       apt_key:
         url: https://packages.quobyte.com/repo/v3/apt/pubkey.gpg 
         state: present
-      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+      when: ansible_facts['os_family'] == "Debian"
 
     - name: Add Quobyte apt repository to sources list
       apt_repository:
@@ -54,6 +54,7 @@
         description: Quobyte rpm repo
         baseurl: "{{ package_url }}/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}"
         gpgkey: https://packages.quobyte.com/repo/v3/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}/repodata/repomd.xml.key
+        gpgcheck: "{{ check_package_signature | default('yes', true) }}"
       when: ansible_facts['os_family'] == "RedHat"
 
     - name: Add Quobyte Zypper repository to sources list
@@ -62,6 +63,7 @@
         description: Quobyte rpm repo
         repo: "{{ package_url }}/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}"
         auto_import_keys: yes
+        disable_gpg_check: "{{ check_packages_signature | default('no', false) }}"
       when: ansible_facts['os_family'] == "Suse"
 
     - name: Install Debian packages
@@ -69,6 +71,7 @@
         name: "{{ packages }}"
         state: present
         update_cache: yes
+        allow_unauthenticated: "{{ check_packages_signature | default('no', false) }}"
       vars:
         packages:
         - default-jre-headless
