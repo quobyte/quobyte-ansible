@@ -4,13 +4,24 @@
   become: yes
   tasks:
 
+    - name: Prepare temporary license file
+      template:
+        src: templates/license.txt.jinja2
+        dest: "/tmp/qlicense.txt"
+
     - name: Get Quobyte session 
       shell:
         cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{admin_password }} 
 
     - name: Import Quobyte license from file
       shell:
-        cmd: qmgmt -u {{ api_service }} license import {{ license_file }} 
+        cmd: qmgmt -u {{ api_service }} license import /tmp/qlicense.txt 
+
+    - name: Remove temporary license file
+      file:
+        state: absent
+        dest: "/tmp/qlicense.txt"
+
 
 - hosts: registryservices 
   become: yes
