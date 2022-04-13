@@ -52,8 +52,8 @@ admin_user: storageadmin
 # Quobyte admin user password. Consider ansible vault etc.
 admin_password: changeMe
 
-# Path to license file
-license_file: /home/deploy/license.txt
+# String containing a valid license key
+license_key: "Place Quobyte license key here"
 
 ## Optional config settings
 
