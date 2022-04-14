@@ -57,9 +57,11 @@ license_key: "Place Quobyte license key here"
 
 ## Optional config settings
 
-## Sometimes you will use your own mirror to provide Quobyte packages
-# dedicated_mirror: https://mypackages.example.com/repo/quobyte/releasebranch
-
 ## If you set a repo id you probably want to install Quobyte 2.x
 # repo_id: 2dxxxxc327Cfyyyasfd
 
+## Dedicated mirror: If you do not use Quobyte repositories, but your own
+# dedicated_mirror: https://mypackages.example.com/repo/quobyte/releasebranch
+
+## Turn off GPG package signature checks
+# check_package_signature: "no"
