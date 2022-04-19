@@ -164,7 +164,7 @@
         path: /etc/quobyte/registry.cfg
         state: present
         line: "rpc.service_networks={{ trusted_service_networks }}"
-      when: 'trusted_service_networks is defined'
+      when: 'trusted_service_networks is defined and repo_id is not defined'
 
     - name: Create quobyte device directory
       file:
