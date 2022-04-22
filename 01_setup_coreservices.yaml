@@ -160,7 +160,7 @@
   vars_files:
     - vars/ansible-vars
   tasks:
-    - name: Check for trusted service networks
+    - name: Check for trusted service networks (2.x branch)
       lineinfile:
         path: /etc/quobyte/registry.cfg
         state: present
