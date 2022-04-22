@@ -20,12 +20,15 @@ api_service: example-host-a.com
 
 ### Networking
 # Service network(s): Quobyte services will communicate through this network.
-service_network: 10.0.0.0/8
+service_networks: 
+  - 10.0.0.0/8
 # Client network(s): Quobyte clients will use this network to communicate with Quobyte services.
-client_network: 10.0.0.0/8
+client_networks: 
+  - 10.0.0.0/8
 # Trusted service network(s): Any service running within this segment will be trusted.
 # All others need to authenticate. See https://support.quobyte.com/docs/16/latest/service_authentication.html
-trusted_service_networks: 10.0.0.0/8
+trusted_service_networks: 
+  - 10.0.0.0/8
 
 ### Storage Device Layout
 # Select one or more dedicated metadata device(s).
