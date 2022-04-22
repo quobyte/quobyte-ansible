@@ -5,12 +5,12 @@
   become: yes
   tasks:
 
-    - name: Check for trusted service networks
+    - name: Check for trusted service networks (2.x branch)
       lineinfile:
         path: /etc/quobyte/registry.cfg
         state: present
         line: "rpc.service_networks={{ trusted_service_networks }}"
-      when: 'trusted_service_networks is defined'
+      when: 'trusted_service_networks is defined and repo_id is defined'
 
     - name: Create registry data directory
       file:
