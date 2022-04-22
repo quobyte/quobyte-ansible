@@ -97,47 +97,48 @@
         marker: "# network section"
         block: |
           network {
-            enabled_service_networks: "{{ service_network }}"
-            enabled_client_networks: "{{ client_network }}"
-            trusted_service_networks: "{{ trusted_service_networks }}"
           }
-      when: '"network {" not in systemconfig.stdout and repo_id is not defined'
+      when: '"network {" not in systemconfig.stdout'
 
-    - name: Add service network block to systemconfig
-      blockinfile:
-        path: /tmp/systemconfig
-        marker: "# network section"
-        block: |
-          network {
-            enabled_service_networks: "{{ service_network }}"
-            enabled_client_networks: "{{ client_network }}"
-          }
-      when: '"network {" not in systemconfig.stdout and repo_id is defined'
-
-
-    - name: Set service network config
+    - name: Clear service network config
       lineinfile:
         path: /tmp/systemconfig
         regexp: '^  enabled_service_networks:.*'
-        line: '  enabled_service_networks: "{{ service_network }}"'
-        insertafter: 'network {'
-      when: '"network {" in systemconfig.stdout'
+        state: absent
 
-    - name: Set client network 
+    - name: Set service network config 
+      lineinfile:
+        path: /tmp/systemconfig
+        line: '  enabled_service_networks: "{{ item }}"'
+        insertafter: 'network {'
+      with_items: "{{ service_networks }}"
+
+    - name: Clear client network config
       lineinfile:
         path: /tmp/systemconfig
         regexp: '^  enabled_client_networks:.*'
-        line: '  enabled_client_networks: "{{ client_network }}"'
-        insertafter: 'network {'
-      when: '"network {" in systemconfig.stdout'
+        state: absent
 
-    - name: Set trusted network
+    - name: Set client network config 
+      lineinfile:
+        path: /tmp/systemconfig
+        line: '  enabled_client_networks: "{{ item }}"'
+        insertafter: 'network {'
+      with_items: "{{ client_networks }}"
+
+    - name: Clear trusted network config
       lineinfile:
         path: /tmp/systemconfig
         regexp: '^  trusted_service_networks:.*'
-        line: '  trusted_service_networks: "{{ trusted_service_networks }}"'
+        state: absent
+
+    - name: Set trusted service network config for Quobyte 3.x 
+      lineinfile:
+        path: /tmp/systemconfig
+        line: '  trusted_service_networks: "{{ item }}"'
         insertafter: 'network {'
-      when: '"network {" in systemconfig.stdout and repo_id is not defined'
+      with_items: "{{ trusted_service_networks }}"
+      when: 'repo_id is not defined'
 
     - name: Import system configuration
       shell:
