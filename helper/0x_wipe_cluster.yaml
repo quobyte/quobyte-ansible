@@ -59,6 +59,7 @@
       vars:
         packages:
         - quobyte-server
+        - quobyte-tools
         - quobyte-client 
         - quobyte-thirdparty-libraries
       when: ansible_facts['os_family'] == "RedHat"
@@ -71,6 +72,12 @@
         state: absent
       when: ansible_facts['os_family'] == "RedHat"
 
+    - name: Clear rpm package cache
+      command:
+        cmd: yum clean all
+      when: ansible_facts['os_family'] == "RedHat"
+
+
     - name: remove Debian packages
       apt:
         name: "{{ packages }}"
@@ -80,6 +87,7 @@
         packages:
         - quobyte-thirdparty-libraries
         - quobyte-server
+        - quobyte-tools
         - quobyte-client
       when: ansible_facts['os_family'] == "Debian"
 
