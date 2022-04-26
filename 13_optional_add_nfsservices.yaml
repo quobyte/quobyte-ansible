@@ -16,6 +16,10 @@
         rpm_distribution_string: RHEL 
       when: ansible_distribution is regex('^RedHat*') 
 
+    - set_fact:
+        rpm_distribution_string: RockyLinux_8
+      when: ansible_distribution is regex('^Rocky*')
+
     - set_fact: 
         rpm_distribution_string: "{{ ansible_distribution }}"
       when: ansible_distribution is regex('^CentOS*') 
