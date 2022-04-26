@@ -17,7 +17,7 @@
       when: ansible_distribution is regex('^RedHat*') 
 
     - set_fact:
-        rpm_distribution_string: RockyLinux_8
+        rpm_distribution_string: RockyLinux
       when: ansible_distribution is regex('^Rocky*')
 
     - set_fact: 
