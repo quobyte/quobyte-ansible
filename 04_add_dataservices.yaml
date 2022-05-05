@@ -66,6 +66,12 @@
       with_items: 
         - "{{ devices_requiring_action }}"
 
+    - name: Make sure device labels are up to date 
+      command:
+        cmd: partprobe {{ item }}
+      with_items: 
+        - "{{ devices_requiring_action }}"
+
     - name: Wait for automounted data devices
       wait_for:
         path: /proc/mounts

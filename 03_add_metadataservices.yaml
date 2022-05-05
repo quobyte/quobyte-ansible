@@ -29,10 +29,16 @@
         fstype: xfs 
         dev: "/dev/{{ item }}"
       with_items: "{{ metadatadevices }}"
+
     - name: Label metadata device with "quobyte-dev" 
       command:
         cmd: xfs_admin -L quobyte-dev /dev/{{ item }} 
         creates: /var/lib/quobyte/mnt/inspector-{{ item }}/QUOBYTE_DEV_SETUP
+      with_items: "{{ metadatadevices }}"
+
+    - name: Make sure device labels are up to date 
+      command:
+        cmd: partprobe /dev/{{ item }} 
       with_items: "{{ metadatadevices }}"
 
     - name: Wait for automounted metadata devices

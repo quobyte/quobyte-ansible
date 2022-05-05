@@ -51,6 +51,12 @@
       with_items:
         - "{{ devices_to_wipe }}"
 
+    - name: update device labels
+      command: 
+        cmd: partprobe {{ item }}
+      with_items:
+        - "{{ devices_to_wipe }}"
+
     - name: remove RPM packages
       yum: 
         update_cache: no 
