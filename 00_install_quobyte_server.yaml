@@ -11,6 +11,7 @@
     
     # *.rpm version schema:
     ## quobyte_version: "-3.1-8.1" 
+    quobyte_version: ""
 
   tasks:
     
