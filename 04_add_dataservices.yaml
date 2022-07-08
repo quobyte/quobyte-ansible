@@ -57,6 +57,7 @@
     - name: Create a xfs filesystem on data devices
       filesystem:
         fstype: xfs 
+        opts: -isize=1024
         dev: "{{ item }}"
       with_items: 
         - "{{ devices_requiring_action }}"

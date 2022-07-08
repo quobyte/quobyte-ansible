@@ -27,6 +27,7 @@
     - name: Create a xfs filesystem on {{ metadatadevices }}
       filesystem:
         fstype: xfs 
+        opts: -isize=1024
         dev: "/dev/{{ item }}"
       with_items: "{{ metadatadevices }}"
 
