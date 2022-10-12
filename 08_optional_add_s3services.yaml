@@ -41,7 +41,7 @@
     - name: Add s3 browser bucket name to systemconfig
       lineinfile:
         path: /tmp/systemconfig
-        line: '  browser_bucket_name: "browser.{{ s3_endpoint }}"'
+        line: '  browser_bucket_name: "browser"'
         regexp: '^  browser_bucket_name:.*'
         insertafter: 's3_proxy {'
 
@@ -50,4 +50,15 @@
         cmd: /usr/bin/qmgmt -u {{ api_service }} systemconfig import /tmp/systemconfig
       tags: system
 
+
+- hosts: s3services 
+  become: yes
+  tasks:
+    - name: Restart Quobyte S3 services 
+      service:
+        enabled: yes
+        state: restarted
+        name: "{{ item }}"
+      with_items: 
+        - quobyte-s3
 
