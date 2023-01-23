@@ -75,4 +75,10 @@ This playbook erases all data on all Quobyte devices, stops services and removes
 You can use it for example if you want to start from scratch with a new installation.
 
 
+### Notes for Rocky Linux
+Using these playbooks with Rocky Linux not only "ansible-core" needs to be installed, but also 
+the community repositories:
 
+```
+ansible-galaxy collection install community.general
+```
