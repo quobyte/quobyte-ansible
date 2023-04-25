@@ -13,15 +13,19 @@
       when: repo_id is not defined 
 
     - set_fact: 
-        rpm_distribution_string: RHEL 
+        rpm_distribution_string: "RHEL"
       when: ansible_distribution is regex('^RedHat*') 
 
+    - set_fact: 
+        rpm_distribution_string: "RHEL"
+      when: ansible_distribution is regex('^OracleLinux*') 
+
     - set_fact:
-        rpm_distribution_string: RockyLinux
+        rpm_distribution_string: "RockyLinux"
       when: ansible_distribution is regex('^Rocky*')
 
     - set_fact: 
-        rpm_distribution_string: "{{ ansible_distribution }}"
+        rpm_distribution_string: "CentOS"
       when: ansible_distribution is regex('^CentOS*') 
 
     - name: Make sure Quobyte repository signing key exists
