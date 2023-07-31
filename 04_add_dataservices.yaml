@@ -25,6 +25,10 @@
     - vars/ansible-vars
   tasks:
 
+    - name: Wait for device inspector to find any unused devices.
+      pause: 
+        seconds: 45
+
     - name: Get Quobyte session 
       shell:
         cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
