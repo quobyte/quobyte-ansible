@@ -19,17 +19,19 @@
       wait_for:
         port: 7873
 
-    - name: Wait 60 seconds for Quobyte to detect devices 
-      pause:
-        seconds: 60 
+- hosts: registryservices[0]
+  become: yes
+  vars_files:
+    - vars/ansible-vars
+  tasks:
 
     - name: Get Quobyte session 
       shell:
         cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
-
     - name: Create a list of unformatted devices
+      ignore_errors: yes
       shell:
-        cmd: qmgmt -u {{ api_service }} device list-unformatted | grep {{ ansible_nodename }} | awk '{print $3}' 
+        cmd: qmgmt -u {{ api_service }} device list-unformatted | awk '{print $1}' | grep -v ^Handle
       register: empty_devices 
     - debug: 
        var: empty_devices
@@ -39,51 +41,9 @@
     - debug: 
         var: unformatted_devices
 
-    - set_fact:
-        mount_names: "{{ ansible_mounts | map(attribute='device') | list}}"
+    - name: Create "make device" tasks 
+      shell:
+        cmd: qmgmt -u {{ api_service }} device make {{ item }} DATA 
+      with_items: "{{ unformatted_devices }}"
 
-    - set_fact:
-            already_mounted: "{{ unformatted_devices | intersect(mount_names) }}"
-    - debug: 
-        var: already_mounted 
-
-    - set_fact:
-            devices_requiring_action: "{{ unformatted_devices | difference(already_mounted) }}"
-    - debug: 
-        var: devices_requiring_action 
-    - set_fact:
-       device_name_short: "{{ devices_requiring_action | replace( '/dev/','' ) }}"
-
-    - name: Create a xfs filesystem on data devices
-      filesystem:
-        fstype: xfs 
-        opts: -isize=1024
-        dev: "{{ item }}"
-      with_items: 
-        - "{{ devices_requiring_action }}"
-    - name: Label data device with "quobyte-dev" 
-      command:
-        cmd: xfs_admin -L quobyte-dev {{ item }}
-      with_items: 
-        - "{{ devices_requiring_action }}"
-
-    - name: Make sure device labels are up to date 
-      command:
-        cmd: partprobe {{ item }}
-      with_items: 
-        - "{{ devices_requiring_action }}"
-
-    - name: Wait for automounted data devices
-      wait_for:
-        path: /proc/mounts
-        search_regex: /var/lib/quobyte/mnt/inspector-{{ item }}
-      with_items:
-        - "{{ device_name_short }}"
-
-    - name: Create Quobyte Data devices
-      command: 
-        cmd: qmkdev -t DATA /var/lib/quobyte/mnt/inspector-{{ item }}
-        creates: /var/lib/quobyte/mnt/inspector-{{ item }}/QUOBYTE_DEV_SETUP
-      with_items:
-        - "{{ device_name_short }}"
 
