@@ -1,4 +1,8 @@
 # managed by ansible
+{% if registry_frontend is defined %}
+registry={{ registry_frontend }}
+{% else %}
 registry={{ registry }}
+{% endif %}
 mount_point=/quobyte
 
