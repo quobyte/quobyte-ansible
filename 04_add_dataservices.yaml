@@ -50,4 +50,12 @@
         cmd: qmgmt -u {{ api_service }} device make {{ item }} DATA 
       with_items: "{{ unformatted_devices }}"
 
+    - name: Wait for tasks to finish before proceeding 
+      shell: 
+        cmd: qmgmt -u {{ api_service }} task list RUNNING -o json 
+      register: result
+      until: result.stdout.find("MAKE_DEVICE") < 1
+      ##retries: 5
+      delay: 10
+
 
