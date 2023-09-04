@@ -55,7 +55,7 @@
         cmd: qmgmt -u {{ api_service }} task list RUNNING,SCHEDULED,QUEUED -o json 
       register: result
       until: result.stdout.find("MAKE_DEVICE") < 1
-      ##retries: 5
+      retries: 50
       delay: 10
 
 
