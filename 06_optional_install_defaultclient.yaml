@@ -73,6 +73,7 @@
       vars:
         packages:
         - quobyte-client
+        - tuned 
       when: ansible_facts['os_family'] == "Debian"
  
     - name: Install RPM packages
@@ -84,6 +85,7 @@
       vars:
         packages:
         - quobyte-client
+        - tuned 
       when: ansible_facts['os_family'] == "RedHat"
 
     - name: Install RPM packages on Suse Linux 
@@ -95,6 +97,7 @@
       vars:
         packages:
         - quobyte-client
+        - tuned 
       when: ansible_facts['os_family'] == "Suse"
 
     - name: Write /etc/quobyte/client-service.cfg
