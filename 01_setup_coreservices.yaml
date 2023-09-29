@@ -192,6 +192,22 @@
       with_items: 
          - quobyte-registry
 
+- hosts: registryservices
+  become: yes
+  vars_files:
+    - vars/ansible-vars
+  tasks:
+    - name: Wait for Registry RPC port to become available 
+      wait_for:
+        port: 7861
+        delay: 2
+
+    - name: Wait for API metrics port to become available 
+      wait_for:
+        port: 7871 
+        delay: 2
+
+
 - hosts: webconsoleservices
   vars_files:
     - vars/ansible-vars
