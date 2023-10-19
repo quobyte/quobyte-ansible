@@ -1,6 +1,6 @@
 policy_rule {
   name: "ssd"
-  description: "Only uses spinning drives."
+  description: "Use solid state drive for all data"
   enabled: true
   scope {
     global: true
