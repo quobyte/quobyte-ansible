@@ -23,7 +23,7 @@
         cmd: /usr/bin/qbootstrap -y -d /var/lib/quobyte/devices/registry-data 
         creates: /var/lib/quobyte/devices/registry-data/QUOBYTE_DEV_SETUP
 
-    - name: Enable Quobyte core services 
+    - name: Make sure first registry service is enabled and started 
       service:
         enabled: yes
         state: started
@@ -36,7 +36,7 @@
     - vars/ansible-vars
   become: yes
   tasks:
-    - name: Enable Quobyte core services 
+    - name: Make sure all API services are enabled and started
       service:
         enabled: yes
         state: started
@@ -184,7 +184,7 @@
         cmd: qmkdev -t REGISTRY -d /var/lib/quobyte/devices/registry-data 
         creates: /var/lib/quobyte/devices/registry-data/QUOBYTE_DEV_SETUP
 
-    - name: Enable Quobyte core services 
+    - name: Enable Quobyte registry services 
       service:
         enabled: yes
         state: started
@@ -206,7 +206,6 @@
       wait_for:
         port: 7871 
         delay: 2
-
 
 - hosts: webconsoleservices
   vars_files:
