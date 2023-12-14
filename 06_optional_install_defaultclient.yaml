@@ -45,7 +45,7 @@
 #        state: present
 #      when: ansible_facts['os_family'] == "Debian"
 #
-   - name: Add Quobyte Debian repository to sources list
+    - name: Add Quobyte Debian repository to sources list
       deb822_repository:
         name: example
         types: deb
