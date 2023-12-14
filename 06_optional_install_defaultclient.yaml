@@ -33,17 +33,29 @@
         rpm_distribution_string: "SLE"
       when: ansible_distribution is regex('SLES') 
 
-    - name: Add Quobyte repository signing key
-      apt_key:
-        url: "{{ dedicated_mirror | default(package_url) }}/apt/pubkey.gpg"
-        state: present
-      when: ansible_facts['os_family'] == "Debian"
+#    - name: Add Quobyte repository signing key
+#      apt_key:
+#        url: "{{ dedicated_mirror | default(package_url) }}/apt/pubkey.gpg"
+#        state: present
+#      when: ansible_facts['os_family'] == "Debian"
+#
+#    - name: Add Quobyte apt repository to sources list
+#      apt_repository:
+#        repo: "deb {{ dedicated_mirror | default(package_url) }}/apt {{ ansible_distribution_release }} main"
+#        state: present
+#      when: ansible_facts['os_family'] == "Debian"
+#
+   - name: Add Quobyte Debian repository to sources list
+      deb822_repository:
+        name: example
+        types: deb
+        uris: https://packages.quobyte.com/repo/v3/apt
+        suites: '{{ ansible_distribution_release }}'
+        components: main
+        architectures: amd64
+        signed_by: https://packages.quobyte.com/repo/current/apt/pubkey.gpg 
 
-    - name: Add Quobyte apt repository to sources list
-      apt_repository:
-        repo: "deb {{ dedicated_mirror | default(package_url) }}/apt {{ ansible_distribution_release }} main"
-        state: present
-      when: ansible_facts['os_family'] == "Debian"
+
 
     - name: Add Quobyte YUM repository to sources list
       yum_repository:
