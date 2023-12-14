@@ -47,7 +47,7 @@
 #
     - name: Add Quobyte Debian repository to sources list
       deb822_repository:
-        name: example
+        name: quobyte 
         types: deb
         uris: https://packages.quobyte.com/repo/v3/apt
         suites: '{{ ansible_distribution_release }}'
