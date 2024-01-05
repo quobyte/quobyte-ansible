@@ -1,0 +1,45 @@
+- hosts: dataservices 
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Stop Quobyte dataservices 
+      service:
+        state: stopped
+        name: quobyte-data
+
+- hosts: metadataservices 
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Stop Quobyte metadata services 
+      service:
+        state: stopped
+        name: quobyte-metadata
+
+- hosts: apiservices 
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Stop Quobyte api services 
+      service:
+        state: stopped
+        name: quobyte-api 
+
+- hosts: webconsoleservices 
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Stop Quobyte webconsole services 
+      service:
+        state: stopped
+        name: quobyte-webconsole 
+
+- hosts: registryservices 
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Stop Quobyte registry services 
+      service:
+        state: stopped 
+        name: quobyte-registry 
+
