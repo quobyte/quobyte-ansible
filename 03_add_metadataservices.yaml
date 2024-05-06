@@ -48,6 +48,15 @@
         search_regex: /var/lib/quobyte/mnt/inspector-{{ item }}
       with_items:
         - "{{ device_name_short }}"
+      # https://github.com/ansible/ansible/issues/79683
+      when: ansible_version.full >= "2.16.1" or ansible_version.full <= "2.13.7"
+
+    - name: Wait for device inspector to find any unused devices (workaround for broken ansible)
+      pause: 
+        seconds: 45
+      # https://github.com/ansible/ansible/issues/79683
+      when: ansible_version.full < "2.16.1" and ansible_version.full > "2.13.7"
+
 
     - name: Run qmkdev to create metadata device 
       command:
