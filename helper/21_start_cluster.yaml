@@ -43,3 +43,12 @@
         state: started
         name: quobyte-data
 
+- hosts: s3services 
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Start Quobyte dataservices 
+      service:
+        state: started
+        name: quobyte-s3
+

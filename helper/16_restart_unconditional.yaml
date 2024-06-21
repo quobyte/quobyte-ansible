@@ -43,3 +43,12 @@
         state: restarted
         name: quobyte-data
 
+- hosts: s3services 
+  become: yes
+  serial: 1
+  tasks:
+    - name: Restart Quobyte dataservices 
+      service:
+        state: restarted
+        name: quobyte-s3
+

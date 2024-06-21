@@ -43,3 +43,12 @@
         state: stopped 
         name: quobyte-registry 
 
+- hosts: s3services 
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Stop Quobyte registry services 
+      service:
+        state: stopped 
+        name: quobyte-s3 
+
