@@ -81,7 +81,7 @@
         allow_unauthenticated: "{{ check_packages_signature | default('no', false) }}"
       vars:
         packages:
-        - default-jre-headless
+        - openjdk-17-jre-headless
         - quobyte-server{{ quobyte_version }}
         - xfsprogs
       when: ansible_facts['os_family'] == "Debian"
@@ -94,7 +94,7 @@
         name: "{{ packages }}"
       vars:
         packages:
-        - java-11-openjdk 
+        - java-17-openjdk 
         - quobyte-server{{ quobyte_version }}
         - xfsprogs
       when: ansible_facts['os_family'] == "RedHat" 
@@ -107,7 +107,7 @@
         name: "{{ packages }}"
       vars:
         packages:
-        - java-11-openjdk 
+        - java-17-openjdk 
         - quobyte-server
         - xfsprogs
         - tuned
