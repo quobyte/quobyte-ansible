@@ -17,6 +17,7 @@
 
     - name: Create Quobyte Super User
       shell:
-        cmd: qmgmt -u {{ api_service }} user config add {{ admin_user }} {{ admin_email | default('changeme@myorga.org') }} SUPER_USER password {{ admin_password }}
+        cmd: qmgmt -u {{ api_service }} user config add {{ admin_user }} --email={{ admin_email | default('changeme@myorga.org') }} --role=SUPER_USER --password="{{ admin_password }}"
       when: admin_user not in admin_user_test.stdout
  
+
