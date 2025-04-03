@@ -5,13 +5,6 @@
   become: yes
   tasks:
 
-    - name: Check for trusted service networks (2.x branch)
-      lineinfile:
-        path: /etc/quobyte/registry.cfg
-        state: present
-        line: "rpc.service_networks={{ trusted_service_networks | join(',') }}"
-      when: 'trusted_service_networks is defined and repo_id is defined'
-
     - name: Create registry data directory
       file:
         path: /var/lib/quobyte/devices/registry-data
@@ -73,7 +66,7 @@
         cmd: cat /tmp/systemconfig
       register: systemconfig
 
-    - name: Add cluster_configuraton block to systemconfig
+    - name: Add initial cluster_configuraton block to systemconfig
       blockinfile:
         path: /tmp/systemconfig
         marker: "# cluster config section"
@@ -81,9 +74,9 @@
           cluster_configuration {
             cluster_name: "{{ clustername }}"
           }
-      when: 'repo_id is not defined and "cluster_configuration {" not in systemconfig.stdout'
+      when: '"cluster_configuration {" not in systemconfig.stdout'
 
-    - name: Set cluster name 
+    - name: Set cluster name in existing cluster_configuration
       lineinfile:
         path: /tmp/systemconfig
         regexp: '^  cluster_name:.*'
@@ -138,7 +131,6 @@
         line: '  trusted_service_networks: "{{ item }}"'
         insertafter: 'network {'
       with_items: "{{ trusted_service_networks }}"
-      when: 'repo_id is not defined'
 
     - name: Import system configuration
       shell:
@@ -160,13 +152,6 @@
   vars_files:
     - vars/ansible-vars
   tasks:
-    - name: Check for trusted service networks (2.x branch)
-      lineinfile:
-        path: /etc/quobyte/registry.cfg
-        state: present
-        line: "rpc.service_networks={{ trusted_service_networks | join(',') }}"
-      when: 'trusted_service_networks is defined and repo_id is defined'
-
     - name: Create quobyte device directory
       file:
         path: /var/lib/quobyte/devices
