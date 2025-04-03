@@ -101,6 +101,7 @@
         dest: "/etc/quobyte/client-service.cfg"
 
     - name: Create client mount point /quobyte 
+      ignore_errors: yes
       file:
         path: /quobyte
         state: directory
