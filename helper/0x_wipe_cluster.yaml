@@ -76,7 +76,7 @@
 
     - name: Clear rpm package cache
       command:
-        cmd: yum clean all
+        cmd: dnf clean all
       when: ansible_facts['os_family'] == "RedHat"
 
     - name: remove Debian packages
@@ -98,7 +98,7 @@
         state: absent 
       when: ansible_facts['os_family'] == "Debian"
 
-    - name: remove Quobyte directories
+    - name: Remove Quobyte directories
       file:
         path: "{{ item }}"
         state: absent
@@ -112,13 +112,4 @@
         repo: "deb {{ package_url }}/apt {{ ansible_distribution_release }} main"
         state: absent 
       when: ansible_facts['os_family'] == "Debian"
-
-    - name: Remove Quobyte rpm repository from sources list
-      yum_repository:
-        name: quobyte
-        description: Quobyte rpm repo
-        baseurl: "{{ package_url }}/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}"
-        state: absent
-      when: ansible_facts['os_family'] == "RedHat"
-
 
