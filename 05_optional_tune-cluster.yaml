@@ -32,6 +32,7 @@
         enabled: yes
 
 - hosts: registryservices 
+  gather_facts: false
   become: yes
   serial: 1
   tasks:
@@ -39,9 +40,18 @@
       service:
         state: restarted
         name: quobyte-registry 
+    - name: Wait for Registry RPC port to become available 
+      wait_for:
+        port: 7861
+        delay: 2
+    - name: Wait for Registry metrics port to become available 
+      wait_for:
+        port: 7871
+        delay: 2
+
 - hosts: apiservices 
   become: yes
-  serial: 1
+  gather_facts: false
   tasks:
     - name: Restart Quobyte api services 
       service:
@@ -49,7 +59,7 @@
         name: quobyte-api 
 - hosts: webconsoleservices 
   become: yes
-  serial: 1
+  gather_facts: false
   tasks:
     - name: Restart Quobyte webconsole services 
       service:
@@ -57,7 +67,7 @@
         name: quobyte-webconsole 
 - hosts: metadataservices 
   become: yes
-  serial: 1
+  gather_facts: false
   tasks:
     - name: Restart Quobyte metadata services 
       service:
@@ -65,26 +75,9 @@
         name: quobyte-metadata 
 - hosts: dataservices 
   become: yes
-  serial: 1
+  gather_facts: false
   tasks:
     - name: Restart Quobyte data services 
       service:
         state: restarted
         name: quobyte-data 
-- hosts: s3services 
-  become: yes
-  serial: 1
-  tasks:
-    - name: Restart Quobyte s3 services 
-      service:
-        state: restarted
-        name: quobyte-s3 
-## NFS currently not part on ansible playbooks
-#- hosts: nfsservices 
-#  become: yes
-#  serial: 1
-#  tasks:
-#    - name: Restart Quobyte nfs services 
-#      service:
-#        state: restarted
-#        name: quobyte-nfs 
