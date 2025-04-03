@@ -60,9 +60,6 @@ license_key: "Place Quobyte license key here"
 
 ## Optional config settings
 
-## If you set a repo id you probably want to install Quobyte 2.x
-# repo_id: 2dxxxxc327Cfyyyasfd
-
 ## Dedicated mirror: If you do not use Quobyte repositories, but your own
 # dedicated_mirror: https://mypackages.example.com/repo/quobyte/releasebranch
 

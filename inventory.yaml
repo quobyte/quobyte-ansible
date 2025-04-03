@@ -56,7 +56,7 @@ all:
       example-host-a.com:
 
    # On which hosts shall the client be installed?
-   # This will install the client auto-mounter that 
+   # This will install the client systemd unit that 
    # mounts all available volumes.
    clients: 
     hosts:
