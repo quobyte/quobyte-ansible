@@ -2,6 +2,7 @@
   vars_files:
     - vars/ansible-vars
   become: yes
+  gather_facts: false
   tasks:
 
     - name: Create object storage working directory
@@ -53,6 +54,7 @@
 
 - hosts: s3services 
   become: yes
+  gather_facts: false
   tasks:
     - name: Restart Quobyte S3 services 
       service:
