@@ -1,18 +1,13 @@
 - hosts: quobyteservers
   become: yes
+  ignore_errors: yes
   tasks:
 
     - set_fact: 
-        package_url: https://packages.quobyte.com/repo/3/{{ repo_id }}
-      when: repo_id is defined 
-
-    - set_fact: 
         package_url: https://packages.quobyte.com/repo/v3 
-      when: repo_id is not defined 
 
     - set_fact: 
         rpm_distribution_string: RHEL 
-        ##when: ansible_distribution is regex('^RedHat*') 
       when: ansible_facts['os_family'] == "RedHat"
 
     - name: stop Quobyte data consuming services  
@@ -30,6 +25,7 @@
         - quobyte-registry
         - quobyte-data
         - quobyte-webconsole
+        - quobyte-client
 
     - name: build device list
       shell:
@@ -83,7 +79,6 @@
         cmd: yum clean all
       when: ansible_facts['os_family'] == "RedHat"
 
-
     - name: remove Debian packages
       apt:
         name: "{{ packages }}"
@@ -103,7 +98,6 @@
         state: absent 
       when: ansible_facts['os_family'] == "Debian"
 
-
     - name: remove Quobyte directories
       file:
         path: "{{ item }}"
@@ -111,6 +105,7 @@
       with_items:
         - /var/lib/quobyte
         - /etc/quobyte 
+        - /quobyte 
 
     - name: Remove Quobyte apt repository from sources list
       apt_repository:

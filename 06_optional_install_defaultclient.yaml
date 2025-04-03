@@ -104,7 +104,7 @@
       file:
         path: /quobyte
         state: directory
-        owner: quobyte
+        owner: quobyte 
 
     - name: Enable Quobyte client service
       service:
