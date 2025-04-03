@@ -1,5 +1,4 @@
 - hosts: quobyteservers
-  #  any_errors_fatal: false
   vars_files:
     - vars/ansible-vars
   become: yes
