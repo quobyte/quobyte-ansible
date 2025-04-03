@@ -1,5 +1,5 @@
 - hosts: quobyteservers
-  any_errors_fatal: false
+  #  any_errors_fatal: false
   vars_files:
     - vars/ansible-vars
   become: yes
@@ -16,12 +16,7 @@
   tasks:
     
     - set_fact: 
-        package_url: https://packages.quobyte.com/repo/3/{{ repo_id }}
-      when: repo_id is defined 
-
-    - set_fact: 
         package_url: https://packages.quobyte.com/repo/current
-      when: repo_id is not defined 
 
     - set_fact: 
         rpm_distribution_string: "RHEL"
