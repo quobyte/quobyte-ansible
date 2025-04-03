@@ -6,12 +6,7 @@
   tasks:
     
     - set_fact: 
-        package_url: https://packages.quobyte.com/repo/3/{{ repo_id }}
-      when: repo_id is defined 
-
-    - set_fact: 
         package_url: https://packages.quobyte.com/repo/v3 
-      when: repo_id is not defined 
 
     - set_fact: 
         rpm_distribution_string: "RHEL"

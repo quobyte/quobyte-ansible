@@ -2,6 +2,7 @@
   vars_files:
     - vars/ansible-vars
   become: yes
+  gather_facts: false
   tasks:
 
     - name: Prepare temporary license file
@@ -22,9 +23,9 @@
         state: absent
         dest: "/tmp/qlicense.txt"
 
-
 - hosts: registryservices 
   become: yes
+  gather_facts: false
   serial: 1
   tasks:
     - name: Restart Quobyte registry services 
@@ -44,7 +45,7 @@
 
 - hosts: apiservices 
   become: yes
-  serial: 1
+  gather_facts: false
   tasks:
     - name: Restart Quobyte api services 
       service:
@@ -59,10 +60,9 @@
         port: 7875 
         delay: 2
 
-
 - hosts: webconsoleservices 
   become: yes
-  serial: 1
+  gather_facts: false
   tasks:
     - name: Restart Quobyte webconsole services 
       service:
@@ -71,7 +71,7 @@
 
 - hosts: metadataservices 
   become: yes
-  serial: 1
+  gather_facts: false
   tasks:
     - name: Restart Quobyte metadata services 
       service:
