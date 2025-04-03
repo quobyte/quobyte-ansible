@@ -1,0 +1,89 @@
+- hosts: nfsservices 
+  vars_files:
+    - vars/ansible-vars
+  become: yes
+  tasks:
+
+    - set_fact: 
+        package_url: https://packages.quobyte.com/repo/3/{{ repo_id }}
+      when: repo_id is defined 
+
+    - set_fact: 
+        package_url: https://packages.quobyte.com/repo/v3 
+      when: repo_id is not defined 
+
+    - set_fact: 
+        rpm_distribution_string: "RHEL"
+      when: ansible_distribution is regex('^RedHat*') 
+
+    - set_fact: 
+        rpm_distribution_string: "RHEL"
+      when: ansible_distribution is regex('^OracleLinux*') 
+
+    - set_fact:
+        rpm_distribution_string: "RockyLinux"
+      when: ansible_distribution is regex('^Rocky*')
+
+    - set_fact: 
+        rpm_distribution_string: "CentOS"
+      when: ansible_distribution is regex('^CentOS*') 
+
+    - name: Make sure Quobyte repository signing key exists
+      apt_key:
+        url: https://packages.quobyte.com/repo/v3/apt/pubkey.gpg 
+        state: present
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+    - name: Make sure Quobyte deb package repository exists 
+      apt_repository:
+        repo: "deb {{ package_url }}/apt {{ ansible_distribution_release }} main"
+        state: present
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Make sure Quobyte rpm package repository exists 
+      yum_repository:
+        name: quobyte
+        description: Quobyte rpm repo
+        baseurl: "{{ package_url }}/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}"
+        gpgkey: https://packages.quobyte.com/repo/v3/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}/repodata/repomd.xml.key
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Install Debian packages
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+        - quobyte-nfs
+      when: ansible_facts['os_family'] == "Debian"
+ 
+    - name: Install RPM packages
+      yum: 
+        update_cache: yes
+        allow_downgrade: yes
+        state: present
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - quobyte-nfs
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Ensure Registry configuration is set
+      template:
+        src: templates/host.cfg.jinja2
+        dest: "/etc/quobyte/host.cfg"
+
+    - name: Ensure config file exists
+      file:
+        path: /etc/quobyte/nfs.cfg
+        state: touch
+
+    - name: Enable Quobyte NFS proxy
+      service:
+        enabled: yes
+        state: started
+        name: "{{ item }}"
+      with_items: 
+         - quobyte-nfs
+
+
