@@ -108,7 +108,6 @@
         - chrony
       when: ansible_facts['os_family'] == "Suse"
 
-
     - name: Write /etc/quobyte/host.cfg
       template:
         src: templates/host.cfg.jinja2
