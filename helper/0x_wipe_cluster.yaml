@@ -79,6 +79,11 @@
         cmd: dnf clean all
       when: ansible_facts['os_family'] == "RedHat"
 
+    - name: solve dependency conflicts for half installe packages
+      command:
+        cmd: dpkg --configure -a
+      when: ansible_facts['os_family'] == "Debian"
+
     - name: remove Debian packages
       apt:
         name: "{{ packages }}"
