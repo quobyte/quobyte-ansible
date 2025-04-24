@@ -1,4 +1,7 @@
-- hosts: metadataservices 
+# ansible-galaxy collection install ansible.posix #(on rocky at least)
+- hosts: metadataservices
+  vars_files:
+    - vars/ansible-vars
   become: yes
   tasks:
 
@@ -10,70 +13,38 @@
       with_items: 
          - quobyte-metadata
 
-- hosts: metadataservices
-  vars_files:
-    - vars/ansible-vars
-  become: yes
-  tasks:
-    - set_fact:
-       device_name_short: "{{ metadatadevices | replace( '/dev/','' ) }}"
     - name: Create a xfs filesystem on {{ metadatadevices }}
       filesystem:
         fstype: xfs 
-        opts: -isize=1024
-        dev: "/dev/{{ item }}"
-      with_items: "{{ metadatadevices }}"
-
-    - name: Label metadata device with "quobyte-dev" 
-      command:
-        cmd: xfs_admin -L quobyte-dev /dev/{{ item }} 
-          ##creates: /var/lib/quobyte/mnt/inspector-{{ item }}/QUOBYTE_DEV_SETUP
-        creates: /var/lib/quobyte/mnt/inspector-{{ item }}
+        opts: -isize=1024 -L quobyte-dev
+        dev: "{{ item }}"
       with_items: "{{ metadatadevices }}"
 
     - name: Make sure device labels are up to date 
       command:
-        cmd: partprobe /dev/{{ item }} 
+        cmd: partprobe {{ item }} 
       with_items: "{{ metadatadevices }}"
 
-    - name: Wait for automounted metadata devices
-      wait_for:
-        path: /proc/mounts
-        search_regex: /var/lib/quobyte/mnt/inspector-{{ item }}
-      with_items:
-        - "{{ device_name_short }}"
-      # https://github.com/ansible/ansible/issues/79683
-      when: ansible_version.full >= "2.16.1" or ansible_version.full <= "2.13.7"
-
-    - name: Wait for device inspector to find any unused devices (workaround for broken ansible)
-      pause: 
-        seconds: 45
-      # https://github.com/ansible/ansible/issues/79683
-      when: ansible_version.full < "2.16.1" and ansible_version.full > "2.13.7"
+    - name: Mount temporary MD device mount
+      mount:
+        path: "/tmp/{{ item }}"
+        src: "{{ item }}"
+        state: ephemeral
+        fstype: xfs
+      with_items: "{{ metadatadevices }}"
 
     - name: Run qmkdev to create metadata device 
       command:
-        cmd: /usr/bin/qmkdev -t METADATA /var/lib/quobyte/mnt/inspector-{{ item }}
-        creates: /var/lib/quobyte/mnt/inspector-{{ item }}/QUOBYTE_DEV_SETUP
+        cmd: /usr/bin/qmkdev -t METADATA /tmp/{{ item }}
+        creates: /tmp/{{ item }}/QUOBYTE_DEV_SETUP
       with_items: "{{ metadatadevices }}"
 
-- hosts: registryservices[0]
-  vars_files:
-    - vars/ansible-vars
-  vars:
-    metadata_device_count: "{{ metadatadevices | length }}"
-  become: yes
-  tasks:
+    - name: Unmount temporary MD device mount
+      mount:
+        path: "/tmp/{{ item }}"
+        src: "{{ item }}"
+        state: unmounted
+      with_items: "{{ metadatadevices }}"
 
-    - name: Get Quobyte session 
-      shell:
-        cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
 
-    - name: Wait for all {{ metadata_device_count }} metadata devices to become available
-      shell: 
-        cmd: qmgmt -u {{ api_service }} device list M | grep ONLINE | wc -l
-      register: metadata_device_state
-      retries: 12
-      delay: 10
-      until: metadata_device_state.stdout >= metadata_device_count 
 
