@@ -57,6 +57,7 @@
       service:
         state: restarted
         name: quobyte-api 
+
 - hosts: webconsoleservices 
   become: yes
   gather_facts: false
@@ -65,14 +66,25 @@
       service:
         state: restarted
         name: quobyte-webconsole 
+
 - hosts: metadataservices 
   become: yes
   gather_facts: false
+  serial: 1
   tasks:
     - name: Restart Quobyte metadata services 
       service:
         state: restarted
         name: quobyte-metadata 
+    - name: Wait for metadata RPC port to become available 
+      wait_for:
+        port: 7862
+        delay: 2
+    - name: Wait for metadata metrics port to become available 
+      wait_for:
+        port: 7872
+        delay: 2
+
 - hosts: dataservices 
   become: yes
   gather_facts: false
@@ -81,3 +93,13 @@
       service:
         state: restarted
         name: quobyte-data 
+    - name: Wait for data RPC port to become available 
+      wait_for:
+        port: 7863
+        delay: 2
+    - name: Wait for data metrics port to become available 
+      wait_for:
+        port: 7873
+        delay: 2
+
+
