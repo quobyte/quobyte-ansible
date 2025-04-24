@@ -34,7 +34,7 @@ trusted_service_networks:
 # Select one or more dedicated metadata device(s).
 # All other available devices will be used as data devices.
 metadatadevices: 
-  - sdb
+  - /dev/sdb
 
 ## Service configuration
 # A valid DNS entry for the S3 endpoint
