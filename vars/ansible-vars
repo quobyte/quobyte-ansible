@@ -35,6 +35,10 @@ trusted_service_networks:
 # All other available devices will be used as data devices.
 metadatadevices: 
   - /dev/sdb
+  # or 
+  # - /dev/disk/by-id/nvme-nvme_card_nvme_card_1
+  # or 
+  # - /dev/disk/by-diskseq/2
 
 ## Service configuration
 # A valid DNS entry for the S3 endpoint
