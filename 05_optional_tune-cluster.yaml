@@ -62,11 +62,28 @@
 - hosts: apiservices 
   become: yes
   gather_facts: false
+  vars_files:
+    - vars/ansible-vars
   tasks:
     - name: Restart Quobyte api services 
       service:
         state: restarted
         name: quobyte-api 
+
+    - name: Do a API liveness probe 
+      uri:
+        url: "http://localhost:7860"
+        user: "{{admin_user}}"
+        password: "{{admin_password}}"
+        force_basic_auth: yes
+        method: POST
+        body_format: json
+        body: "{ \"id\": \"12345\", \"jsonrpc\": \"2.0\", \"method\": \"whoAmI\", \"params\": { \"retry\": \"INFINITELY\" } }"
+        return_content: yes
+      register: _result 
+      until: _result.status == 200
+      retries: 720 # 720 * 5 seconds = 1hour (60*60/5)
+      delay: 5 # Every 5 seconds
 
 - hosts: webconsoleservices 
   become: yes
