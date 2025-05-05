@@ -25,26 +25,46 @@
         cmd: partprobe {{ item }} 
       with_items: "{{ metadatadevices }}"
 
+    - name: Mount temporary MD device mount (old ansible.posix workaround)
+      mount:
+        path: "/tmp{{ item }}"
+        src: "{{ item }}"
+        state: mounted
+        fstype: xfs
+      with_items: "{{ metadatadevices }}"
+      when: ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['distribution_major_version'] <= '22' 
+
     - name: Mount temporary MD device mount
       mount:
-        path: "/tmp/{{ item }}"
+        path: "/tmp{{ item }}"
         src: "{{ item }}"
         state: ephemeral
         fstype: xfs
       with_items: "{{ metadatadevices }}"
+      when: ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['distribution_major_version'] > '22' or ansible_facts['distribution'] != 'Ubuntu'
+
 
     - name: Run qmkdev to create metadata device 
       command:
-        cmd: /usr/bin/qmkdev -t METADATA /tmp/{{ item }}
-        creates: /tmp/{{ item }}/QUOBYTE_DEV_SETUP
+        cmd: /usr/bin/qmkdev -t METADATA /tmp{{ item }}
+        creates: /tmp{{ item }}/QUOBYTE_DEV_SETUP
       with_items: "{{ metadatadevices }}"
 
     - name: Unmount temporary MD device mount
       mount:
-        path: "/tmp/{{ item }}"
+        path: "/tmp{{ item }}"
         src: "{{ item }}"
         state: unmounted
       with_items: "{{ metadatadevices }}"
+
+    - name: Remove entry from fstab (old ansible.posix workaround)
+      mount:
+        path: "/tmp{{ item }}"
+        src: "{{ item }}"
+        state: absent
+        fstype: xfs
+      with_items: "{{ metadatadevices }}"
+      when: ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['distribution_major_version'] <= '22' 
 
 
 
