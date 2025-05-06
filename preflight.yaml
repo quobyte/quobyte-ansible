@@ -1,4 +1,4 @@
-- hosts: quobyteservers
+- hosts: quobyteservers,clients
   vars_files:
     - vars/ansible-vars
   become: yes
@@ -56,7 +56,16 @@
       with_items: 
         - gpg
 
+- hosts: metadataservers
+  vars_files:
+    - vars/ansible-vars
+  tasks:
+    - name: Check if metadata devices are available
+      filesystem:
+        check_mode:  
+
 - hosts: localhost 
+  tasks:
     - name: Install necessary Ansible collection that do not come with ansible-core
       community.general.ansible_galaxy_install:
         type: collection
