@@ -1,0 +1,59 @@
+- hosts: quobyteservers
+  vars_files:
+    - vars/ansible-vars
+  become: yes
+  ignore_errors: false
+  tasks:
+
+    - name: Make sure all hosts are reachable via SSH 
+      ansible.builtin.ping:
+
+    - name: Get installed packages 
+      package_facts:
+        manager: auto
+
+    - name: Install chrony if no other time sysnc daemon is installed
+      apt:
+        name: chrony
+        state: present 
+      when: ansible_facts['os_family'] == "Debian" and 'ntp' not in ansible_facts.packages and 'ntpsec' not in ansible_facts.packages
+
+    - name: Install chrony if no other time sysnc daemon is installed
+      yum: 
+        name: chrony 
+        state: present
+      when: ansible_facts['os_family'] == "RedHat" and 'ntp' not in ansible_facts.packages and 'ntpsec' not in ansible_facts.packages
+
+    - name: Install chrony if no other time sysnc daemon is installed
+      zypper: 
+        update_cache: yes
+        state: present
+        name: chrony
+      when: ansible_facts['os_family'] == "Suse" and 'ntp' not in ansible_facts.packages and 'ntpsec' not in ansible_facts.packages
+
+    - name: Make sure needed packages are installed 
+      apt:
+        name: "{{ item }}"
+        state: present 
+      when: ansible_facts['os_family'] == "Debian" 
+      with_items: 
+        - gpg
+
+    - name: Make sure needed packages are installed 
+      yum: 
+        name: "{{ item }}"
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"
+      with_items: 
+        - gpg
+
+    - name: Make sure needed packages are installed 
+      zypper: 
+        update_cache: yes
+        state: present
+        name: "{{ item }}"
+      when: ansible_facts['os_family'] == "Suse" 
+      with_items: 
+        - gpg
+
+
