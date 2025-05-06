@@ -1,3 +1,11 @@
+- hosts: localhost 
+  tasks:
+    - name: Install necessary Ansible collection that do not come with ansible-core
+      community.general.ansible_galaxy_install:
+        type: collection
+        name: ansible.posix
+      when: ansible_facts['os_family'] == "RedHat"
+
 - hosts: quobyteservers,clients
   vars_files:
     - vars/ansible-vars
@@ -63,12 +71,4 @@
     - name: Check if metadata devices are available
       filesystem:
         check_mode:  
-
-- hosts: localhost 
-  tasks:
-    - name: Install necessary Ansible collection that do not come with ansible-core
-      community.general.ansible_galaxy_install:
-        type: collection
-        name: community.posix
-      when: ansible_facts['os_family'] == "RedHat"
 
