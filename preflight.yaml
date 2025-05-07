@@ -64,11 +64,18 @@
       with_items: 
         - gpg
 
-- hosts: metadataservers
+- hosts: metadataservices
   vars_files:
     - vars/ansible-vars
+  become: yes
   tasks:
-    - name: Check if metadata devices are available
-      filesystem:
-        check_mode:  
-
+    - name: Read metadata device information
+      parted: 
+        device: "{{ item }}"
+        unit: "GiB"
+      register: md_device_info
+      with_items: "{{ metadatadevices }}"
+    - name: Print device info
+      debug:
+        msg: "{% if item.partitions|length >= 1 %} Too bad! Device {{ item.disk.dev }} has already a partition label  {% else %} device {{ item.disk.dev }} has no partitions, which is good. {% endif %}"
+      with_items: "{{ md_device_info.results }}"
