@@ -20,19 +20,19 @@
       package_facts:
         manager: auto
 
-    - name: Install chrony if no other time sysnc daemon is installed
+    - name: Install chrony if no other time sync daemon is installed
       apt:
         name: chrony
         state: present 
       when: ansible_facts['os_family'] == "Debian" and 'ntp' not in ansible_facts.packages and 'ntpsec' not in ansible_facts.packages
 
-    - name: Install chrony if no other time sysnc daemon is installed
+    - name: Install chrony if no other time sync daemon is installed
       yum: 
         name: chrony 
         state: present
       when: ansible_facts['os_family'] == "RedHat" and 'ntp' not in ansible_facts.packages and 'ntpsec' not in ansible_facts.packages
 
-    - name: Install chrony if no other time sysnc daemon is installed
+    - name: Install chrony if no other time sync daemon is installed
       zypper: 
         update_cache: yes
         state: present
