@@ -1,0 +1,59 @@
+---
+- hosts: localhost
+  vars_prompt:
+
+    - name: clustername 
+      prompt: "Enter the name for your new Quobyte storage cluster"
+      default: "Quobyte Cluster"
+      private: false
+
+    - name: username
+      prompt: "Enter the name for the Quobyte superadmin account"
+      private: false
+      default: "storageadmin"
+
+    - name: password
+      prompt: "Enter the password for the Quobyte superadmin account" 
+
+    - name: license 
+      prompt: "Enter a valid license key" 
+      private: false
+
+    - name: frontend_network 
+      prompt: "Enter your frontend network" 
+      private: false
+
+    - name: backend_network 
+      prompt: "Enter your backend network" 
+      private: false
+
+    - name: metadata_device 
+      prompt: "Enter a valid path to a dedicated metadata device" 
+      private: false
+      default: "/dev/sdb"
+
+    - name: registry_backend_service_records
+      prompt: "Enter your backend registry service records (DNS record pointing to your machines where the registry service will run)"
+      private: false
+      default: "storage.examplesetup.com"
+
+    - name: registry_frontend_service_records
+      prompt: "Enter your frontend registry service records"
+      private: false
+      default: "storage.examplesetup.com"
+
+  tasks:
+
+    - name: Write variables to config file for later use
+      template:
+        src: templates/varsfile-template.jinja2
+        dest: "vars/newvars"
+
+    - name: Summary 
+      ansible.builtin.debug:
+        msg: 
+          - 'Super user account {{ username }}'
+          - 'Backend Network: {{ backend_network }}'
+          - 'Frontend Network: {{ frontend_network }}'
+
+
