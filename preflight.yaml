@@ -3,8 +3,43 @@
     - name: Install necessary Ansible collection that do not come with ansible-core
       community.general.ansible_galaxy_install:
         type: collection
-        name: ansible.posix
+        name: "{{ item }}"
       when: ansible_facts['os_family'] == "RedHat"
+      with_items: 
+        - ansible.posix 
+        - ansible.utils 
+#    - name: check if backend network variable is valid.
+#      debug:
+#        msg: "{{ backend_network|ansible.utils.ipaddr('net') }}"
+#      when: "ansible_version.full is version_compare('2.1', '>=')" 
+#
+
+- hosts: metadataservices
+  any_errors_fatal: true
+  max_fail_percentage: 1
+  serial: 1
+  vars_files:
+    - vars/ansible-vars
+  become: yes
+  tasks:
+
+    - name: Read metadata device information
+      parted: 
+        device: "{{ item }}"
+        unit: "GiB"
+      register: md_device_info
+      with_items: "{{ metadatadevices }}"
+
+    - name: Exit if metadata devices already contain a partition table.
+      assert:
+        quiet: true
+        that: "item.partitions|length <= 0"
+        fail_msg: >
+          Metadata device {{ item.disk.dev }} on host {{ ansible_host }} contains a partition table.
+          You can wipe the partition table using "wipefs -a"
+        success_msg: >
+          Metadata device {{ item.disk.dev }} on host {{ ansible_host }} seems to be valid.
+      with_items: "{{ md_device_info.results }}"
 
 - hosts: quobyteservers,clients
   vars_files:
@@ -64,18 +99,3 @@
       with_items: 
         - gpg
 
-- hosts: metadataservices
-  vars_files:
-    - vars/ansible-vars
-  become: yes
-  tasks:
-    - name: Read metadata device information
-      parted: 
-        device: "{{ item }}"
-        unit: "GiB"
-      register: md_device_info
-      with_items: "{{ metadatadevices }}"
-    - name: Print device info
-      debug:
-        msg: "{% if item.partitions|length >= 1 %} Too bad! Device {{ item.disk.dev }} has already a partition label  {% else %} device {{ item.disk.dev }} has no partitions, which is good. {% endif %}"
-      with_items: "{{ md_device_info.results }}"
