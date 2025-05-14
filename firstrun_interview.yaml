@@ -30,30 +30,31 @@
     - name: metadata_device 
       prompt: "Enter a valid path to a dedicated metadata device" 
       private: false
-      default: "/dev/sdb"
+      default: "/dev/nvme1n1"
 
     - name: registry_backend_service_records
       prompt: "Enter your backend registry service records (DNS record pointing to your machines where the registry service will run)"
       private: false
-      default: "storage.examplesetup.com"
+      default: "registry.examplesetup.com"
 
     - name: registry_frontend_service_records
       prompt: "Enter your frontend registry service records"
       private: false
-      default: "storage.examplesetup.com"
+      default: "frontendregistry.examplesetup.com"
 
   tasks:
 
     - name: Write variables to config file for later use
       template:
         src: templates/varsfile-template.jinja2
-        dest: "vars/newvars"
+        dest: "vars/ansible-vars"
 
     - name: Summary 
       ansible.builtin.debug:
-        msg: 
-          - 'Super user account {{ username }}'
-          - 'Backend Network: {{ backend_network }}'
-          - 'Frontend Network: {{ frontend_network }}'
+        msg: >  
 
-
+          'Congratulations! You can now install Quobyte.
+          It is recommended to check your configuration using a 
+          preflight playbook:
+            ansible-playbook -i inventory.yaml preflight.yaml
+          '
