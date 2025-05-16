@@ -1,4 +1,7 @@
 - hosts: localhost 
+  any_errors_fatal: true
+  vars_files:
+    - vars/ansible-vars
   tasks:
     - name: Install necessary Ansible collection that do not come with ansible-core
       community.general.ansible_galaxy_install:
@@ -8,6 +11,17 @@
       with_items: 
         - ansible.posix 
         - ansible.utils 
+
+    - set_fact: 
+        registry_ipv4_a_record: "{{ lookup('community.general.dig', registry, qtype='SRV') }}"
+
+    - set_fact: 
+        registry_frontend_ipv4_a_record: "{{ lookup('community.general.dig', registry_frontend, qtype='SRV') }}"
+
+    - name: Check for DNS errors
+      assert: 
+        that: registry_ipv4_a_record != "NXDOMAIN" and registry_frontend_ipv4_a_record != "NXDOMAIN"
+
 #    - name: check if backend network variable is valid.
 #      debug:
 #        msg: "{{ backend_network|ansible.utils.ipaddr('net') }}"
