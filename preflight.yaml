@@ -14,13 +14,16 @@
 
     - set_fact: 
         registry_ipv4_a_record: "{{ lookup('community.general.dig', registry, qtype='SRV') }}"
+      when: ansible_facts['os_family'] != "RedHat"
 
     - set_fact: 
         registry_frontend_ipv4_a_record: "{{ lookup('community.general.dig', registry_frontend, qtype='SRV') }}"
+      when: ansible_facts['os_family'] != "RedHat"
 
     - name: Check for DNS errors
       assert: 
         that: registry_ipv4_a_record != "NXDOMAIN" and registry_frontend_ipv4_a_record != "NXDOMAIN"
+      when: ansible_facts['os_family'] != "RedHat"
 
 #    - name: check if backend network variable is valid.
 #      debug:
