@@ -25,11 +25,6 @@
     - vars/ansible-vars
   tasks:
 
-    - name: Get Quobyte major version 
-      shell:
-        cmd: qmgmt --version | cut -c1
-      register: quobyte_major_version
-
     - name: Wait for device inspector to find any unused devices.
       pause: 
         seconds: 45
@@ -57,21 +52,11 @@
 
     - name: Wait for tasks to finish before proceeding 
       shell: 
-        cmd: qmgmt -u {{ api_service }} task list RUNNING,SCHEDULED,QUEUED -o json 
-      register: result
-      until: result.stdout.find("MAKE_DEVICE") < 1
-      retries: 500
-      delay: 10
-      when: quobyte_major_version.stdout == "3"
-
-    - name: Wait for tasks to finish before proceeding 
-      shell: 
         cmd: qmgmt -u {{ api_service }} --output json task list RUNNING SCHEDULED QUEUED 
       register: result
       until: result.stdout.find("MAKE_DEVICE") < 1
       retries: 500
       delay: 10
-      when: quobyte_major_version.stdout == "4"
 
 
 
