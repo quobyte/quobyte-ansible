@@ -4,13 +4,10 @@
   become: yes
   tasks:
 
-    - name: Get Quobyte major version 
-      shell:
-        cmd: qmgmt --version | cut -c1
-      register: quobyte_major_version
     - name: Get Quobyte session 
       shell:
         cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
+
     - name: Test if Quobyte Super User exists
       shell:
         cmd: qmgmt -u {{ api_service }} user config list | grep "^{{ admin_user }} " | awk '{print $1}'
@@ -22,14 +19,9 @@
     - debug: 
         var: admin_user_test
 
-    - name: Create Quobyte Super User on 3.x
-      shell:
-        cmd: qmgmt -u {{ api_service }} user config add {{ admin_user }} --email={{ admin_email | default('changeme@myorga.org') }} --role=SUPER_USER --password="{{ admin_password }}"
-      when: quobyte_major_version.stdout == "3" and admin_user not in admin_user_test.stdout
- 
-    - name: Create Quobyte Super User on 4.x
+    - name: Create Quobyte Super User 
       shell:
         # qmgmt user config add [-h] [--member-of-tenant MEMBER_OF_TENANT] [--admin-of-tenant ADMIN_OF_TENANT] [--primary-group PRIMARY_GROUP] [--member-of-group MEMBER_OF_GROUP] user_id email role password
         cmd: qmgmt -u {{ api_service }} user config add {{ admin_user }} {{ admin_email | default('changeme@myorga.org') }} SUPER_USER "{{ admin_password }}"
-      when: quobyte_major_version.stdout == "4" and admin_user not in admin_user_test.stdout
+      when: admin_user not in admin_user_test.stdout
 
