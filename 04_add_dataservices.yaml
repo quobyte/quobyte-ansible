@@ -35,7 +35,7 @@
     - name: Create a list of unformatted devices
       ignore_errors: yes
       shell:
-        cmd: qmgmt -u {{ api_service }} device list-unformatted | awk '{print $1}' | grep -v ^Handle
+        cmd: qmgmt -u {{ api_service }} device list-unformatted | awk '{print $1}' | grep -v -e ^Handle -e ^No
       register: empty_devices 
     - debug: 
        var: empty_devices
