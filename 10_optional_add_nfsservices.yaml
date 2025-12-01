@@ -28,15 +28,16 @@
         rpm_distribution_string: "CentOS"
       when: ansible_distribution is regex('^CentOS*') 
 
-    - name: Make sure Quobyte repository signing key exists
-      apt_key:
-        url: https://packages.quobyte.com/repo/v3/apt/pubkey.gpg 
+    - name: Add Quobyte deb822 repository to sources list
+      deb822_repository:
+        types: "deb"
+        name: "quobyte"
+        uris: "{{ dedicated_mirror | default(package_url) }}/apt"
         state: present
-      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
-    - name: Make sure Quobyte deb package repository exists 
-      apt_repository:
-        repo: "deb {{ package_url }}/apt {{ ansible_distribution_release }} main"
-        state: present
+        suites: "{{ ansible_distribution_release }}"
+        components: 
+          - main
+        signed_by: https://packages.quobyte.com/repo/current/apt/pubkey.gpg
       when: ansible_facts['os_family'] == "Debian"
 
     - name: Make sure Quobyte rpm package repository exists 

@@ -37,16 +37,16 @@
         rpm_distribution_string: "SLE"
       when: ansible_distribution is regex('SLES') 
 
-    - name: Add Quobyte repository signing key
-      apt_key:
-        url: "{{ dedicated_mirror | default(package_url) }}/apt/pubkey.gpg"
+    - name: Add Quobyte deb822 repository to sources list
+      deb822_repository:
+        types: "deb"
+        name: "quobyte"
+        uris: "{{ dedicated_mirror | default(package_url) }}/apt"
         state: present
-      when: ansible_facts['os_family'] == "Debian"
-
-    - name: Add Quobyte apt repository to sources list
-      apt_repository:
-        repo: "deb {{ dedicated_mirror | default(package_url) }}/apt {{ ansible_distribution_release }} main"
-        state: present
+        suites: "{{ ansible_distribution_release }}"
+        components: 
+          - main
+        signed_by: https://packages.quobyte.com/repo/current/apt/pubkey.gpg
       when: ansible_facts['os_family'] == "Debian"
 
     - name: Add Quobyte YUM repository to sources list
@@ -75,7 +75,7 @@
         allow_unauthenticated: "{{ check_packages_signature | default('no', false) }}"
       vars:
         packages:
-        - openjdk-17-jre-headless
+        - default-jre-headless
         - quobyte-server{{ quobyte_version }}
         - xfsprogs
       when: ansible_facts['os_family'] == "Debian"
