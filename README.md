@@ -30,12 +30,10 @@ $ ansible-playbook -i inventory.yaml <playbookName>
 You can choose to install these playbooks step by step or all at once. For example 
 
 ```
-$ ansible-playbook -i inventory.yaml 00_install_quobyte_server.yaml 01_setup_coreservices.yaml 02_create_superuser.yaml 03_add_metadataservices.yaml 04_add_dataservices.yaml 05_optional_tune-cluster.yaml
+$ ansible-playbook -i inventory.yaml 00_install_quobyte_server.yaml 01_setup_coreservices.yaml 02_create_superuser.yaml 03_add_metadataservices.yaml 04_add_dataservices.yaml 05_optional_install_defaultclient.yaml 06_optional_license_cluster.yaml 
 ```
 
-would result in a Quobyte setup that is ready to use and has already ensured some system tuning parameters.
-
-The same way you can for example add a license, create volumes etc.
+would result in a Quobyte setup that is ready to use and has already ensured system tuning parameters.
 
 ## Lifecycle management
 
