@@ -24,6 +24,18 @@
       with_items: 
          - quobyte-registry
 
+    - name: Wait for registry service to signal readiness
+      uri:
+        url: 'http://localhost:7871/serviceHealth'
+        return_content: no 
+        validate_certs: no
+        status_code:
+        - 200
+      until: uri_output.status == 200
+      retries: 24
+      delay: 5
+      register: uri_output
+
 - hosts: apiservices
   vars_files:
     - vars/ansible-vars
@@ -46,6 +58,18 @@
       wait_for:
         port: 7875 
         delay: 2
+
+    - name: Wait for API service to signal readiness
+      uri:
+        url: 'http://localhost:7875/serviceHealth'
+        return_content: no 
+        validate_certs: no
+        status_code:
+        - 200
+      until: uri_output.status == 200
+      retries: 24
+      delay: 5
+      register: uri_output
 
 - hosts: apiservices[0]
   vars_files:
@@ -187,10 +211,22 @@
         port: 7861
         delay: 2
 
-    - name: Wait for API metrics port to become available 
+    - name: Wait for Registry metrics port to become available 
       wait_for:
         port: 7871 
         delay: 2
+
+    - name: Wait for Registry service to signal readiness
+      uri:
+        url: 'http://localhost:7871/serviceHealth'
+        return_content: no 
+        validate_certs: no
+        status_code:
+        - 200
+      until: uri_output.status == 200
+      retries: 24
+      delay: 5
+      register: uri_output
 
 - hosts: webconsoleservices
   vars_files:

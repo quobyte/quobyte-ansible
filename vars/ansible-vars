@@ -5,7 +5,7 @@ registry_frontend: frontend.quobyte-demo.com.
 
 ## Ansible configuration:
 # Quobyte API endpoint to talk to
-api_service: qb1.quobyte-demo.com 
+api_service: 192.168.1.4
 
 ## Storage server configuration
 
@@ -27,9 +27,7 @@ trusted_service_networks:
 # Select one or more dedicated metadata device(s).
 # All other available devices will be used as data devices.
 metadatadevices: 
-  # - /dev/nvme0n1 
-  # - /dev/sda 
-  - /dev/disk/by-path/pci-0000:00:01.0-nvme-1 
+  - /dev/nvme0n1 
 
 ## Service configuration
 # A valid DNS entry for the S3 endpoint
@@ -48,7 +46,7 @@ admin_user: storageadmin
 admin_password: changeMe
 
 # Path to license file
-license_key: "H4sIAAA fill in a valid license key here XtabAAAA"
+license_key: "H4sIAAAAAAAAAONgEGIxNLUwl2I2MTZREg0oSi1OzEktVghJLS5RcM7PLUjMq9R4v/v2OTYjBouGhi1nrtw/xuxkZmDCJOGtfjlrjrXfgVelDLN1DniwivQ+61jC5W/NJJH6K/n19rztn3QZhXLu+JedrHitujVZN32NB0MEQwNjQ8OsZa/WP2bsgLMmMDLMYGRYwMhwAi50gZEBADDqS2+bAAAA"
 
 ## Optional config settings
 

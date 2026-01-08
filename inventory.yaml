@@ -1,63 +1,48 @@
 all:
   vars: 
-    # Ansible variables
     ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+    # adjust your python interpreter as needed
     ansible_python_interpreter: /usr/bin/python3
+  children: 
+   quobyteservers:
+    hosts:
+      10.164.15.222:
+      10.164.0.41:
+      10.164.0.27:
+      10.164.15.224:
+   webconsoleservices:
+    hosts:
+      10.164.15.222:
+      10.164.0.41:
+      10.164.0.27:
+   apiservices:
+    hosts:
+      10.164.15.222:
+      10.164.0.41:
+      10.164.0.27:
+   registryservices:
+    hosts:
+      10.164.15.222:
+      10.164.0.41:
+      10.164.0.27:
+   metadataservices:
+    hosts:
+      10.164.15.222:
+      10.164.0.41:
+      10.164.0.27:
+   dataservices:
+    hosts:
+      10.164.15.222:
+      10.164.0.41:
+      10.164.0.27:
+      10.164.15.224:
+   s3services:
+    hosts:
+      10.164.15.222:
+      10.164.0.41:
+      10.164.0.27:
 
-quobyteservers:
-  children:
-    registryservices:
-    dataservices:
-    metadataservices:
-    webconsoleservices:
-    apiservices:
-    s3services:
-    clients:
+   clients: 
+    hosts:
+      10.164.0.39:
 
-webconsoleservices:
- hosts:
-   server1.example.com:
-   server2.example.com:
-   server3.example.com:
-
-apiservices:
- hosts:
-   server1.example.com:
-   server2.example.com:
-   server3.example.com:
-
-registryservices:
- hosts:
-   server1.example.com:
-   server2.example.com:
-   server3.example.com:
-
-metadataservices:
- hosts:
-   server1.example.com:
-   server2.example.com:
-   server3.example.com:
-
-dataservices:
- hosts:
-   server1.example.com:
-   server2.example.com:
-   server3.example.com:
-   server4.example.com:
-   server5.example.com:
-   server6.example.com:
-   server7.example.com:
-   server8.example.com:
-
-s3services:
- hosts:
-   server1.example.com:
-   server2.example.com:
-   server3.example.com:
-
-clients:
- hosts:
-   client1.example.com:
-   client2.example.com:
-   client3.example.com:
-   client4.example.com:

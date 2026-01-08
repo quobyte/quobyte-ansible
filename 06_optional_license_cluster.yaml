@@ -40,8 +40,17 @@
       wait_for:
         port: 7871
         delay: 5
-
-
+    - name: Wait for Registry service to signal readiness
+      uri:
+        url: 'http://localhost:7871/serviceHealth'
+        return_content: no 
+        validate_certs: no
+        status_code:
+        - 200
+      until: uri_output.status == 200
+      retries: 24
+      delay: 5
+      register: uri_output
 
 - hosts: apiservices 
   become: yes
@@ -59,6 +68,18 @@
       wait_for:
         port: 7875 
         delay: 2
+    - name: Wait for API service to signal readiness
+      uri:
+        url: 'http://localhost:7875/serviceHealth'
+        return_content: no 
+        validate_certs: no
+        status_code:
+        - 200
+      until: uri_output.status == 200
+      retries: 24
+      delay: 5
+      register: uri_output
+
 
 - hosts: webconsoleservices 
   become: yes
@@ -77,4 +98,16 @@
       service:
         state: restarted
         name: quobyte-metadata
+    - name: Wait for metadata service to signal readiness
+      uri:
+        url: 'http://localhost:7872/serviceHealth'
+        return_content: no 
+        validate_certs: no
+        status_code:
+        - 200
+      until: uri_output.status == 200
+      retries: 24
+      delay: 5
+      register: uri_output
+
 

@@ -13,6 +13,18 @@
       with_items: 
          - quobyte-metadata
 
+    - name: Wait for metadata service to signal readiness
+      uri:
+        url: 'http://localhost:7872/serviceHealth'
+        return_content: no 
+        validate_certs: no
+        status_code:
+        - 200
+      until: uri_output.status == 200
+      retries: 24
+      delay: 5
+      register: uri_output
+
     - name: Create a xfs filesystem on {{ metadatadevices }}
       filesystem:
         fstype: xfs 
@@ -42,7 +54,6 @@
         fstype: xfs
       with_items: "{{ metadatadevices }}"
       when: ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['distribution_major_version'] > '22' or ansible_facts['distribution'] != 'Ubuntu'
-
 
     - name: Run qmkdev to create metadata device 
       command:

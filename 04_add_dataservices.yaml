@@ -19,6 +19,18 @@
       wait_for:
         port: 7873
 
+    - name: Wait for data service to signal readiness
+      uri:
+        url: 'http://localhost:7873/serviceHealth'
+        return_content: no 
+        validate_certs: no
+        status_code:
+        - 200
+      until: uri_output.status == 200
+      retries: 24
+      delay: 5
+      register: uri_output
+
 - hosts: registryservices[0]
   become: yes
   vars_files:

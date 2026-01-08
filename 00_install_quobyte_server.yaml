@@ -78,6 +78,7 @@
         - default-jre-headless
         - quobyte-server{{ quobyte_version }}
         - xfsprogs
+        - tuned
       when: ansible_facts['os_family'] == "Debian"
  
     - name: Install RPM packages
@@ -91,6 +92,7 @@
         - java-17-openjdk 
         - quobyte-server{{ quobyte_version }}
         - xfsprogs
+        - tuned
       when: ansible_facts['os_family'] == "RedHat" 
 
     - name: Install RPM packages on Suse Linux 
@@ -112,5 +114,8 @@
       template:
         src: templates/host.cfg.jinja2
         dest: "/etc/quobyte/host.cfg"
+
+    - name: Set Quobyte tuned server profile
+      command: tuned-adm profile quobyte-server-performance
 
 
