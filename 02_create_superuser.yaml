@@ -14,9 +14,6 @@
       register: admin_user_test
 
     - debug: 
-        var: quobyte_major_version 
-
-    - debug: 
         var: admin_user_test
 
     - name: Create Quobyte Super User 
