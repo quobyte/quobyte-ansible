@@ -85,7 +85,7 @@
         - tuned
       when: ansible_facts['os_family'] == "Debian"
  
-    - name: Install chrony if no other time sysnc daemon is installed
+    - name: Install chrony if no other time sync daemon is installed
       apt:
         name: chrony
         state: present
