@@ -77,13 +77,27 @@
   become: yes
   tasks:
 
+    - name: Test qmqmt version 
+      shell:
+        cmd: qmgmt --version | cut -c 1 
+      register: qmgmt_version
+
+    - debug:
+        var: qmgmt_version.stdout_lines
+
     - name: Get Quobyte session 
       shell:
         cmd: qmgmt -u {{ api_service }} user login {{ admin_user }} {{ admin_password }} 
 
-    - name: Export systemconfig 
+    - name: Export systemconfig for version 4 
       shell:
         cmd: qmgmt -u {{ api_service }} systemconfig export /tmp/systemconfig
+      when: '"4" in qmgmt_version.stdout_lines'
+
+    - name: Export systemconfig for version 5
+      shell:
+        cmd: qmgmt -u {{ api_service }} systemconfig export --format=proto /tmp/systemconfig
+      when: '"5" in qmgmt_version.stdout_lines'
 
     - name: Register systemconfig
       shell: 
@@ -160,6 +174,13 @@
       shell:
         cmd: /usr/bin/qmgmt -u {{ api_service }} systemconfig import /tmp/systemconfig
       tags: system
+      when: '"4" in qmgmt_version.stdout_lines'
+
+    - name: Import system configuration
+      shell:
+        cmd: /usr/bin/qmgmt -u {{ api_service }} systemconfig import --format=proto /tmp/systemconfig
+      tags: system
+      when: '"5" in qmgmt_version.stdout_lines'
 
 - hosts: registryservices[0]
   become: yes
