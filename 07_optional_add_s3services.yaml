@@ -19,6 +19,12 @@
       with_items: 
          - quobyte-s3
 
+- hosts: registryservices[0] 
+  vars_files:
+    - vars/ansible-vars
+  become: yes
+  tasks:
+
     - name: Test qmqmt version 
       shell:
         cmd: qmgmt --version | cut -c 1 
