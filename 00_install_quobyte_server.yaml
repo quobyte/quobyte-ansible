@@ -79,7 +79,7 @@
         allow_unauthenticated: "{{ check_packages_signature | default('no', false) }}"
       vars:
         packages:
-        - default-jre-headless
+        - openjdk-25-jre-headless
         - quobyte-server{{ quobyte_version }}
         - xfsprogs
         - tuned
@@ -99,7 +99,7 @@
         name: "{{ packages }}"
       vars:
         packages:
-        - java-17-openjdk 
+        - java-25-openjdk 
         - quobyte-server{{ quobyte_version }}
         - xfsprogs
         - tuned
@@ -113,7 +113,7 @@
         name: "{{ packages }}"
       vars:
         packages:
-        - java-17-openjdk 
+        - java-25-openjdk 
         - quobyte-server
         - xfsprogs
         - tuned
