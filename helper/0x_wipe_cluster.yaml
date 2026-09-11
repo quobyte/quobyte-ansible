@@ -94,22 +94,24 @@
         rpm_distribution_string: RHEL 
       when: ansible_facts['os_family'] == "RedHat"
 
-    - name: stop Quobyte data consuming services  
-      ignore_errors: yes
-      service:
-        state: stopped
-        enabled: false 
+    - name: Build list of running quobyte-* services
+      ansible.builtin.set_fact:
+        quobyte_running_services: >-
+          {{
+            ansible_facts.services
+            | dict2items
+            | selectattr('key', 'match', '^quobyte-.*\.service$')
+            | selectattr('value.state', 'equalto', 'running')
+            | map(attribute='key')
+            | list
+          }}
+
+    - name: Stop running Quobyte services 
+      ansible.builtin.systemd:
         name: "{{ item }}"
-      with_items:
-        - quobyte-nfs
-        - quobyte-s3
-        - quobyte-metadata
-        - quobyte-data
-        - quobyte-api
-        - quobyte-registry
-        - quobyte-data
-        - quobyte-webconsole
-        - quobyte-client
+        state: stopped
+      loop: "{{ quobyte_running_services }}"
+      when: host_cfg_change.changed
 
     - name: build device list
       shell:
@@ -182,9 +184,9 @@
       when: ansible_facts['os_family'] == "Debian"
 
     - name: Remove Quobyte apt repository to sources list
-      apt_repository:
-        repo: "deb {{ package_url }}/apt {{ ansible_facts['distribution_release'] }} main"
-        state: absent 
+      file:
+        path: /etc/apt/sources.list.d/quobyte.sources 
+        state: absent
       when: ansible_facts['os_family'] == "Debian"
 
     - name: Remove Quobyte directories
