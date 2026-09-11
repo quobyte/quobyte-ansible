@@ -19,23 +19,23 @@
 
     - set_fact: 
         rpm_distribution_string: "RHEL"
-      when: ansible_distribution is regex('^RedHat*') 
+      when: ansible_facts['distribution'] is search('^RedHat*') 
 
     - set_fact: 
         rpm_distribution_string: "RHEL"
-      when: ansible_distribution is regex('^OracleLinux*') 
+      when: ansible_facts['distribution'] is search('^OracleLinux*') 
 
     - set_fact:
         rpm_distribution_string: "RockyLinux"
-      when: ansible_distribution is regex('^Rocky*')
+      when: ansible_facts['distribution'] is search('^Rocky*')
 
     - set_fact: 
         rpm_distribution_string: "CentOS"
-      when: ansible_distribution is regex('^CentOS*') 
+      when: ansible_facts['distribution'] is search('^CentOS*') 
 
     - set_fact: 
         rpm_distribution_string: "SLE"
-      when: ansible_distribution is regex('SLES') 
+      when: ansible_facts['distribution'] is search('SLES') 
 
     - name: Get installed packages
       package_facts:
@@ -47,7 +47,7 @@
         name: "quobyte"
         uris: "{{ dedicated_mirror | default(package_url) }}/apt"
         state: present
-        suites: "{{ ansible_distribution_release }}"
+        suites: "{{ansible_facts['distribution_release'] }}"
         components: 
           - main
         signed_by: https://packages.quobyte.com/repo/current/apt/pubkey.gpg
@@ -57,8 +57,8 @@
       yum_repository:
         name: quobyte
         description: Quobyte rpm repo
-        baseurl: "{{ dedicated_mirror | default(package_url) }}/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}"
-        gpgkey: "{{ dedicated_mirror | default(package_url) }}/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}/repodata/repomd.xml.key"
+        baseurl: "{{ dedicated_mirror | default(package_url) }}/rpm/{{ rpm_distribution_string }}_{{ansible_facts['distribution_major_version'] }}"
+        gpgkey: "{{ dedicated_mirror | default(package_url) }}/rpm/{{ rpm_distribution_string }}_{{ansible_facts['distribution_major_version'] }}/repodata/repomd.xml.key"
         gpgcheck: "{{ check_package_signature | default('yes', true) }}"
       when: ansible_facts['os_family'] == "RedHat"
 
@@ -66,7 +66,7 @@
       zypper_repository:
         name: quobyte
         description: Quobyte rpm repo
-        repo: "{{ dedicated_mirror | default(package_url) }}/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}"
+        repo: "{{ dedicated_mirror | default(package_url) }}/rpm/{{ rpm_distribution_string }}_{{ansible_facts['distribution_major_version'] }}"
         auto_import_keys: yes
         disable_gpg_check: "{{ check_packages_signature | default('no', false) }}"
       when: ansible_facts['os_family'] == "Suse"
