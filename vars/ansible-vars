@@ -1,21 +1,25 @@
-## Global configuration: valid for clients and servers
+## Global configuration: valid for services and clients
 # Registry entries:
 registry: quobyte-demo.com.
 registry_frontend: frontend.quobyte-demo.com.
 
 ## Ansible configuration:
 # Quobyte API endpoint to talk to
+# Only used during installation by Ansible.
 api_service: 192.168.1.4
 
 ## Storage server configuration
 
 ### Networking
+# https://docs.quobyte.com/docs/16/latest/network_setup.html#effective-ip-address
 # Service network(s): Quobyte services will communicate through this network.
 service_networks: 
   - 192.168.1.0/24 
+
 # Client network(s): Quobyte clients will use this network to communicate with Quobyte services.
 client_networks: 
   - 172.16.0.0/16
+
 # Trusted service network(s): Any service running within this segment will be trusted.
 # All others need to authenticate. See https://support.quobyte.com/docs/16/latest/service_authentication.html
 trusted_service_networks: 
@@ -23,9 +27,16 @@ trusted_service_networks:
 ##  - 172.16.0.0/16
   - 192.168.1.0/24 
 
+# Decide weather or not use RDMA
+# https://docs.quobyte.com/docs/16/latest/network_setup.html#rdma
+RDMA = false
+
 ### Storage Device Layout
 # Select one or more dedicated metadata device(s).
 # All other available devices will be used as data devices.
+# This selection only matters for Ansible during installation. 
+# After the installation Quobyte will not depend on device order, 
+# i.e. it is fine that the Kernel shuffles devices.
 metadatadevices: 
   - /dev/nvme0n1 
 
