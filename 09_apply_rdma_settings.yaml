@@ -1,0 +1,65 @@
+- name: Control RDMA for Quobyte services
+  hosts: quobyteservers
+  become: true
+  vars_files:
+    - vars/ansible-vars
+  vars: 
+    RDMA: false
+
+  tasks:
+    - name: Set rdma.enabled={{ RDMA | bool | lower }} in host.cfg
+      ansible.builtin.lineinfile:
+        path: /etc/quobyte/host.cfg
+        regexp: "^\\s*rdma.enabled\\s*="
+        line: "rdma.enabled={{ RDMA | bool | lower }}"
+        insertafter: EOF
+        create: true
+        mode: "0644"
+      register: host_cfg_change
+
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Build list of running quobyte-* services
+      ansible.builtin.set_fact:
+        quobyte_running_services: >-
+          {{
+            ansible_facts.services
+            | dict2items
+            | selectattr('key', 'match', '^quobyte-.*\.service$')
+            | selectattr('value.state', 'equalto', 'running')
+            | map(attribute='key')
+            | list
+          }}
+
+    - name: Restart running Quobyte services to apply RDMA setting
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: restarted
+      loop: "{{ quobyte_running_services }}"
+      when: host_cfg_change.changed
+
+- name: Control RDMA for Quobyte Clients 
+  hosts: clients
+  become: true
+  vars_files:
+    - vars/ansible-vars
+  vars: 
+    RDMA: false
+
+  tasks:
+    - name: Set rdma.enabled={{ RDMA | bool | lower }} in client.cfg
+      ansible.builtin.lineinfile:
+        path: /etc/quobyte/client.cfg
+        regexp: "^\\s*rdma.enabled\\s*="
+        line: "rdma.enabled={{ RDMA | bool | lower }}"
+        insertafter: EOF
+        create: true
+        mode: "0644"
+      register: host_cfg_change
+
+    - name: Restart running Quobyte client to apply RDMA setting
+      ansible.builtin.systemd:
+        name: quobyte-client
+        state: restarted
+      when: host_cfg_change.changed
