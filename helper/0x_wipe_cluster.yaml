@@ -98,7 +98,7 @@
       ansible.builtin.set_fact:
         quobyte_running_services: >-
           {{
-            ansible_facts.services
+            ansible_facts['services']
             | dict2items
             | selectattr('key', 'match', '^quobyte-.*\.service$')
             | selectattr('value.state', 'equalto', 'running')
@@ -111,7 +111,6 @@
         name: "{{ item }}"
         state: stopped
       loop: "{{ quobyte_running_services }}"
-      when: host_cfg_change.changed
 
     - name: build device list
       shell:
