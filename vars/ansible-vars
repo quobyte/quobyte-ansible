@@ -29,7 +29,7 @@ trusted_service_networks:
 
 # Decide weather or not use RDMA
 # https://docs.quobyte.com/docs/16/latest/network_setup.html#rdma
-RDMA = false
+RDMA: false
 
 ### Storage Device Layout
 # Select one or more dedicated metadata device(s).
