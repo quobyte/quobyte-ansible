@@ -1,3 +1,87 @@
+- hosts: clients 
+  become: yes
+  ignore_errors: yes
+  tasks:
+
+    - set_fact: 
+        package_url: https://packages.quobyte.com/repo/v3 
+
+    - set_fact: 
+        rpm_distribution_string: RHEL 
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: stop Quobyte clients  
+      ignore_errors: yes
+      service:
+        state: stopped
+        enabled: false 
+        name: "{{ item }}"
+      with_items:
+        - quobyte-client
+
+    - name: remove RPM packages
+      yum: 
+        update_cache: no 
+        state: absent
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - quobyte-client 
+        - quobyte-tools
+        - quobyte-thirdparty-libraries
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Remove Quobyte rpm repository to sources list
+      yum_repository:
+        name: quobyte
+        description: Quobyte rpm repo
+        baseurl: "{{ package_url }}/rpm/{{ rpm_distribution_string }}_{{ ansible_distribution_major_version }}"
+        state: absent
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Clear rpm package cache
+      command:
+        cmd: dnf clean all
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: solve dependency conflicts for half installe packages
+      command:
+        cmd: dpkg --configure -a
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: remove Debian packages
+      apt:
+        name: "{{ packages }}"
+        state: absent 
+        purge: yes
+      vars:
+        packages:
+        - quobyte-thirdparty-libraries
+        - quobyte-tools
+        - quobyte-client
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Remove Quobyte apt repository to sources list
+      apt_repository:
+        repo: "deb {{ package_url }}/apt {{ ansible_distribution_release }} main"
+        state: absent 
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Remove Quobyte directories
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /var/lib/quobyte
+        - /etc/quobyte 
+        - /quobyte 
+
+    - name: Remove Quobyte apt repository from sources list
+      apt_repository:
+        repo: "deb {{ package_url }}/apt {{ ansible_distribution_release }} main"
+        state: absent 
+      when: ansible_facts['os_family'] == "Debian"
+
 - hosts: quobyteservers
   become: yes
   ignore_errors: yes
