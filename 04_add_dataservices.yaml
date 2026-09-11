@@ -53,14 +53,16 @@
        var: empty_devices
 
     - set_fact: 
-       unformatted_devices: "{{ empty_devices.stdout_lines }}"
+        unformatted_devices: "{{ empty_devices.stdout_lines }}"
     - debug: 
         var: unformatted_devices
 
+    - set_fact:
+        unformatted_devices_string: "{{ unformatted_devices | join(',') }}"
+
     - name: Create "make device" tasks 
       shell:
-        cmd: qmgmt -u {{ api_service }} device make {{ item }} DATA 
-      with_items: "{{ unformatted_devices }}"
+        cmd: qmgmt -u {{ api_service }} device make {{ unformatted_devices_string }} DATA 
 
     - name: Wait for tasks to finish before proceeding 
       shell: 
